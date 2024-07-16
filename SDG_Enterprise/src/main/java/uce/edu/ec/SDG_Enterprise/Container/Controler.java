@@ -7,8 +7,6 @@ import uce.edu.ec.SDG_Enterprise.Model.User;
 import uce.edu.ec.SDG_Enterprise.Sevice.ProductService;
 import uce.edu.ec.SDG_Enterprise.Sevice.RequestedService;
 import uce.edu.ec.SDG_Enterprise.Sevice.UserService;
-import uce.edu.ec.SDG_Enterprise.View.VistaAdministrador;
-import uce.edu.ec.SDG_Enterprise.View.VistaCliente;
 
 import java.util.Set;
 
@@ -30,20 +28,12 @@ public class Controler {
         String optionalUsuario = usuarioService.getRolForLogin(username, password);
             String rol =  optionalUsuario;
             if ("Administrador".equalsIgnoreCase(rol)) {
-                iniciarVistaAdmistrador();
+
             } else if ("Cliente".equalsIgnoreCase(rol)) {
-                iniciarVistaCliente();
+
             }
     }
-    public void iniciarVistaAdmistrador() {
-        VistaAdministrador vistaEmpleado = new VistaAdministrador(this);
-       // vistaEmpleado.setVisible(true);
-    }
 
-    public void iniciarVistaCliente() {
-        VistaCliente vistaCliente = new VistaCliente(this);
-       // vistaCliente.setVisible(true);
-    }
 
     public void registro(String email, String name, String password, String phone, String rol, String rucCedula, String username){
         User user = new User(email, name, password, phone, rol, rucCedula, username);

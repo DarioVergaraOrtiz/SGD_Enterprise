@@ -1,9 +1,12 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
+import org.springframework.stereotype.Component;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
+@Component
 public class UIPrincipal extends JFrame {
 
     public UIPrincipal() {
