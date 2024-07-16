@@ -10,9 +10,10 @@ import uce.edu.ec.SDG_Enterprise.View.Window;
 public class SdgEnterpriseApplication {
 
 	public static void main(String[] args) {
+
 		ConfigurableApplicationContext context = new SpringApplicationBuilder(
-				SdgEnterpriseApplication.class).headless(false).run(args);
-		Window appFrame = context.getBean(Window.class);
+		SdgEnterpriseApplication.class).headless(false).run(args);
+		UIPrincipal appFrame = context.getBean(UIPrincipal.class);
 		appFrame.setVisible(true);
 
 	}
