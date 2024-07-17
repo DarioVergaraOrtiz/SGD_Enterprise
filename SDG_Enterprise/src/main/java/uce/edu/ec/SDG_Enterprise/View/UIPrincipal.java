@@ -1,12 +1,9 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
-import org.springframework.stereotype.Component;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 
-@Component
 public class UIPrincipal extends JFrame {
 
     public UIPrincipal() {
@@ -98,7 +95,7 @@ public class UIPrincipal extends JFrame {
             String usuario = jtUser.getText();
             System.out.println("usuario: " + usuario);
             if (usuario.equals("administrador")) {
-                // Lógica para el usuario administrador
+                new ViewAdmin();
             } else {
                 new ViewClient();
             }
