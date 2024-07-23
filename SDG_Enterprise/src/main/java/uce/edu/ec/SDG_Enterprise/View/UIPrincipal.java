@@ -1,10 +1,16 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import uce.edu.ec.SDG_Enterprise.Container.Controler;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-
+@Component
 public class UIPrincipal extends JFrame {
+    @Autowired
+    Controler controler;
 
     public UIPrincipal() {
         super("Ui_Principal");
@@ -80,7 +86,7 @@ public class UIPrincipal extends JFrame {
         lienzoPrincipal.add(jbRegistrarse);
 
         jbRegistrarse.addActionListener(e -> {
-            new UIRegister(UIPrincipal.this);
+        controler.startViewRegister();
         });
 
         // Botón De Ingresar
@@ -93,12 +99,9 @@ public class UIPrincipal extends JFrame {
 
         jbIngresar.addActionListener(e -> {
             String usuario = jtUser.getText();
-            System.out.println("usuario: " + usuario);
-            if (usuario.equals("administrador")) {
-                new ViewAdmin();
-            } else {
-                new ViewClient();
-            }
+            String contrasena = new String(jpPassword.getPassword());
+            controler.iniciarSegundaVista(usuario,contrasena);
+
         });
 
         getContentPane().add(lienzoPrincipal);

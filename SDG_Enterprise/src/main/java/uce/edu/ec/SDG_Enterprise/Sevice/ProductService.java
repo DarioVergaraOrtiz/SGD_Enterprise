@@ -12,7 +12,16 @@ import java.util.Optional;
 public class ProductService {
     @Autowired
     IProductRepository productRepository;
-
+    public Product save(Product product) {
+        return productRepository.save(product);
+    }
+    public Product saveProduct(String name, String material, double price) {
+        Product product = new Product();
+        product.setName(name);
+        product.setMaterial(material);
+        product.setPrice(price);
+        return productRepository.save(product);
+    }
     public List<Product> findAll() {
         return productRepository.findAll();
     }

@@ -1,21 +1,22 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
+import uce.edu.ec.SDG_Enterprise.Container.Controler;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class UIRegister extends JDialog {
-
-    public UIRegister(Frame parent) {
-        super(parent, "Ventana de Registro", true); // true para modal
+    Controler controler;
+    public UIRegister(Controler controler) {
         setUndecorated(true);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(screenSize.width / 2 - 250, screenSize.height / 2 - 250, 500, 500);
-        setLocationRelativeTo(parent);
+        setBounds(screenSize.width / 2 - 250, screenSize.height / 2 - 250, 500, 600);
         setLayout(null);
+        setLocationRelativeTo(null);
 
         int panelWidth = 500;
-        int panelHeight = 500;
-
+        int panelHeight = 600;
+        this.controler = controler;
         //Tamño del panel
         BackgroundPanel panelPrincipal = new BackgroundPanel("/Recursos/fondo.jpg",0.75f);
         panelPrincipal.setLayout(null);
@@ -112,7 +113,21 @@ public class UIRegister extends JDialog {
         jpPassword.setBackground(new Color(240,240,240));
         jpPassword.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jpPassword);
+// Campo de Teléfono
+        JLabel jlPhone = new JLabel("Phone");
+        Font fontjlPhone = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
+        jlPhone.setBounds(20, 420, 220, 50);
+        jlPhone.setFont(fontjlPhone);
+//jlPhone.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panelPrincipal.add(jlPhone);
 
+        JTextField jtPhone = new JTextField();
+        Font fontjtPhone = new Font("Roboto", Font.TRUETYPE_FONT, 25);
+        jtPhone.setBounds(250, 425, 180, 40);
+        jtPhone.setFont(fontjtPhone);
+        jtPhone.setBackground(new Color(240, 240, 240));
+        jtPhone.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panelPrincipal.add(jtPhone);
         CustomImageButton mostrarContrasena = new CustomImageButton("/Recursos/ojo.jpg", 40, 40);
         mostrarContrasena.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         mostrarContrasena.setBounds(440,355,40,40);
@@ -128,7 +143,7 @@ public class UIRegister extends JDialog {
         JButton jbCancelar = new JButton("Cancelar");
         Font fontjbCancelar = new Font("Roboto", Font.TRUETYPE_FONT, 30);
         jbCancelar.setFont(fontjbCancelar);
-        jbCancelar.setBounds(20, 420, 220, 50);
+        jbCancelar.setBounds(20, 490, 220, 50);
         panelPrincipal.add(jbCancelar);
 
         jbCancelar.addActionListener(e -> {
@@ -139,11 +154,17 @@ public class UIRegister extends JDialog {
         JButton jbRegistrarse = new JButton("Registrarse");
         Font fontjbRegistrarse = new Font("Roboto", Font.TRUETYPE_FONT, 30);
         jbRegistrarse.setFont(fontjbRegistrarse);
-        jbRegistrarse.setBounds(260, 420, 220, 50);
+        jbRegistrarse.setBounds(260, 490, 220, 50);
         panelPrincipal.add(jbRegistrarse);
 
         jbRegistrarse.addActionListener(e -> {
-            JOptionPane.showMessageDialog(null, "REGISTRO EXISTOSO", "", JOptionPane.INFORMATION_MESSAGE);
+            String nombre = jtNombre.getText();
+            String cedula = jtCedula.getText();
+            String usuario = jtUsuario.getText();
+            String correo = jtCorreo.getText();
+            String password = new String(jpPassword.getPassword());
+            String phone = jtPhone.getText();
+            controler.registerClient(cedula,nombre,usuario,password,"Cliente",correo,phone);
             dispose();
         });
 

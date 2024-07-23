@@ -14,8 +14,22 @@ public class UserService {
     IUserRepository userRepository;
 
     public User save(User usuario) {
+
         return userRepository.save(usuario);
     }
+    public User saveUser( String rucCedula, String name, String username, String password, String rol, String email, String phone) {
+        User usuario = new User();
+        usuario.setRucCedula(rucCedula);
+        usuario.setName(name);
+        usuario.setUsername(username);
+        usuario.setPassword(password);
+        usuario.setRol(rol);
+        usuario.setEmail(email);
+        usuario.setPhone(phone);
+
+        return userRepository.save(usuario);
+    }
+
 
     public List<User> findAll() {
         return userRepository.findAll();
