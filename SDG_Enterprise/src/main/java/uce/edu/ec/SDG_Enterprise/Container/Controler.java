@@ -73,7 +73,7 @@ public class Controler {
     public void registerClient(String rucCedula, String name, String username, String password, String rol, String email, String phone) {
         usuarioService.saveUser(rucCedula, name, username, password, rol, email, phone);
         JOptionPane.showMessageDialog(null, "Registro exitoso", "Registro", JOptionPane.INFORMATION_MESSAGE);
-        startClientView();
+        //startClientView();
     }
 
     public void addProduct() {

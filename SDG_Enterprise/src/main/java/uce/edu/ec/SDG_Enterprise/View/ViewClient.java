@@ -137,10 +137,11 @@ public class ViewClient extends JFrame {
         panelPrincipal.add(jbComprar);
 
         jbComprar.addActionListener(e -> {
+            controler.realizarCompra(productosSeleccionados);
             carritoModel.clear();
             productosSeleccionados.clear();
             jtTotalCarrito.setText("Total: $0.00");
-            controler.realizarCompra(productosSeleccionados);
+
         });
 
         // Botón para actualizar productos
