@@ -1,9 +1,13 @@
 package uce.edu.ec.SDG_Enterprise.Sevice;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uce.edu.ec.SDG_Enterprise.Model.Product;
+import uce.edu.ec.SDG_Enterprise.Model.Process;
 import uce.edu.ec.SDG_Enterprise.Sevice.Repository.IProductRepository;
+import uce.edu.ec.SDG_Enterprise.Sevice.Repository.ProcessRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +15,11 @@ import java.util.Optional;
 @Service
 public class ProductService {
     @Autowired
-    IProductRepository productRepository;
+    private IProductRepository productRepository;
+
+    @Autowired
+    private ProcessRepository processRepository;
+
     public Product save(Product product) {
         return productRepository.save(product);
     }
@@ -29,4 +37,17 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
+
+    @Transactional
+    public void addProcessToProduct(Long productId, Long processId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        Process process = processRepository.findById(processId)
+                .orElseThrow(() -> new EntityNotFoundException("Process not found"));
+
+        product.getProcess().add(process);
+
+        productRepository.save(product);
+    }
 }

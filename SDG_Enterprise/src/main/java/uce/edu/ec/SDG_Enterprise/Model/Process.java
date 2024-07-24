@@ -2,6 +2,10 @@ package uce.edu.ec.SDG_Enterprise.Model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 public class Process {
 
@@ -12,6 +16,18 @@ public class Process {
     private String nameProcess;
 
     private Double time;
+
+    @ManyToMany(mappedBy = "process")
+    private Set<Product> products = new HashSet<>();
+
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
 
     public Process() {
     }

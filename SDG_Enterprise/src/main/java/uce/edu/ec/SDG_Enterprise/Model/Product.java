@@ -2,6 +2,8 @@ package uce.edu.ec.SDG_Enterprise.Model;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -15,6 +17,20 @@ public class Product {
 
     @OneToMany(mappedBy = "product")
     private Set<Requested> pedidos;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "product_process",
+            joinColumns = @JoinColumn(name = "producto_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "process_id", referencedColumnName = "id"))
+    private Set<Process> process = new HashSet<>();
+
+    public Set<Process> getProcess() {
+        return process;
+    }
+
+    public void setProcess(Set<Process> process) {
+        this.process = process;
+    }
 
     public Long getId() {
         return id;
@@ -55,4 +71,6 @@ public class Product {
     public void setPrice(double price) {
         this.price = price;
     }
+
+
 }

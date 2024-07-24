@@ -51,7 +51,7 @@ public class ViewClient extends JFrame {
 
         // Nombre del Clientes
         JLabel jlClient = new JLabel("¡SDG Enterprise te da la bienvenida " + controler.userName() + "!");
-        jlClient.setBounds(2 * x, y, 50 * x, 4 * y);
+        jlClient.setBounds(2 * x, y, 53 * x, 4 * y);
         jlClient.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 35));
         jlClient.setHorizontalAlignment(SwingConstants.CENTER);
         panelEncabezado.add(jlClient);
@@ -73,7 +73,7 @@ public class ViewClient extends JFrame {
         jbPendientes.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
 
         jbPendientes.addActionListener(e -> {
-            PedidosUI pedidos = new PedidosUI();
+            PedidosUI pedidos = new PedidosUI(controler);
         });
         panelEncabezado.add(jbPendientes);
 
@@ -106,7 +106,6 @@ public class ViewClient extends JFrame {
         jsCarrito.setBackground(new Color(235, 235, 220));
         jsCarrito.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         panelPrincipal.add(jsCarrito);
-
 
         //Total Carrito
         jtTotalCarrito = new JLabel();

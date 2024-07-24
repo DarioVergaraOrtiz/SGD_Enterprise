@@ -238,5 +238,10 @@ public class Controler {
         }
     }
 
+    public String concatProcessToProduct(long id_1, long id_2){
+        productService.addProcessToProduct(id_1,id_2);
+        return "Se intento";
+    }
+
 
 }

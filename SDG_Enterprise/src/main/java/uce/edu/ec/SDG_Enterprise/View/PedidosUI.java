@@ -1,11 +1,14 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
+import uce.edu.ec.SDG_Enterprise.Container.Controler;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class PedidosUI extends JFrame {
 
-    public PedidosUI() {
+    Controler controler;
+    public PedidosUI(Controler controler) {
         setUndecorated(true);
         setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -16,7 +19,7 @@ public class PedidosUI extends JFrame {
 
         int x = screenSize.width / 96;
         int y = screenSize.height / ((screenSize.height * 96) / screenSize.width);
-
+this.controler =controler;
         setBounds(27*x, 5*y, 42*x, 44*y);
 
         // Lienzo principal donde se agrega cualquier cosa
@@ -33,7 +36,7 @@ public class PedidosUI extends JFrame {
         panelEncabezado.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
         // de quien es el pedido
-        JLabel lbUsuario = new JLabel("Usuario: ");
+        JLabel lbUsuario = new JLabel("Usuario: "+ controler.userName());
         lbUsuario.setBounds(x,y, 34*x, 4*y);
         lbUsuario.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 40));
         panelEncabezado.add(lbUsuario);
@@ -75,8 +78,15 @@ public class PedidosUI extends JFrame {
         panelNotificaciones.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(panelNotificaciones);
 
+        JLabel labelTexto = new JLabel(controler.concatProcessToProduct(1,3));
+        labelTexto.setBounds(x, y, 36*x, 3*y);
+        labelTexto.setHorizontalAlignment(SwingConstants.CENTER);
+        panelNotificaciones.add(labelTexto, BorderLayout.CENTER);
+        panelNotificaciones.add(labelTexto);
+
         getContentPane().add(panelPrincipal);
         setVisible(true);
+
     }
 
 }
