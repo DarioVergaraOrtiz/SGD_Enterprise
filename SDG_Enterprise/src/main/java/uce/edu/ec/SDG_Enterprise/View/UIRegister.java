@@ -7,130 +7,127 @@ import java.awt.*;
 
 public class UIRegister extends JDialog {
     Controler controler;
+
     public UIRegister(Controler controler) {
         setUndecorated(true);
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(screenSize.width / 2 - 250, screenSize.height / 2 - 250, 500, 600);
-        setLayout(null);
-        setLocationRelativeTo(null);
+        setResizable(false);
 
-        int panelWidth = 500;
-        int panelHeight = 600;
+        //Generalizar valores de pantalla
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(screenSize.width, screenSize.height);
+
+        int x = screenSize.width / 96;
+        int y = screenSize.height / ((screenSize.height * 96) / screenSize.width);
+
+        setBounds(32 * x, 6 * y, 32 * x, 35 * y);
+
         this.controler = controler;
+
         //Tamño del panel
-        BackgroundPanel panelPrincipal = new BackgroundPanel("/Recursos/fondo.jpg",0.75f);
+        BackgroundPanel panelPrincipal = new BackgroundPanel("/Recursos/fondo.jpg", 0.75f);
         panelPrincipal.setLayout(null);
-        panelPrincipal.setBackground(new Color(169,169,169,75));
-        panelPrincipal.setSize(panelWidth, panelHeight);
         panelPrincipal.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
+        // Titulo del panel
         JLabel tituloPanel = new JLabel("Cliente Nuevo");
-        Font fuenteTitulo = new Font("Lemon Jelly", Font.BOLD, 45);
-        tituloPanel.setFont(fuenteTitulo);
-        tituloPanel.setBounds(100,10,350,50);
+        tituloPanel.setBounds(0, 0, 32 * x, 4 * y);
+        tituloPanel.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 60));
+        tituloPanel.setHorizontalAlignment(SwingConstants.CENTER);
+        tituloPanel.setVerticalAlignment(SwingConstants.CENTER);
         panelPrincipal.add(tituloPanel);
 
         //Creacion de campos
-
         //Campo Nombre
         JLabel jlNombre = new JLabel("Nombre");
-        Font fontjlNombre = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
-        jlNombre.setBounds(20, 70, 220, 50);
-        jlNombre.setFont(fontjlNombre);
-        //jlNombre.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        jlNombre.setBounds(x, 6 * y, 14 * x, 3 * y);
+        jlNombre.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 45));
+        jlNombre.setHorizontalAlignment(SwingConstants.RIGHT);
         panelPrincipal.add(jlNombre);
 
         JTextField jtNombre = new JTextField();
-        Font fontjtNombre = new Font("Roboto", Font.TRUETYPE_FONT, 25);
-        jtNombre.setBounds(250, 75, 230, 40);
-        jtNombre.setFont(fontjtNombre);
-        jtNombre.setBackground(new Color(240,240,240));
+        jtNombre.setBounds(17 * x, 6 * y, 14 * x, 3 * y);
+        jtNombre.setFont(new Font("Arial", Font.BOLD, 30));
+        jtNombre.setBackground(new Color(240, 240, 240));
         jtNombre.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jtNombre);
 
 
         //Cammpo Cedula
         JLabel jlCedula = new JLabel("Cedula");
-        Font fontjlCedula = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
-        jlCedula.setBounds(20, 140, 220, 50);
-        jlCedula.setFont(fontjlCedula);
-        //jlCedula.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        jlCedula.setBounds(x, 10 * y, 14 * x, 3 * y);
+        jlCedula.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 45));
+        jlCedula.setHorizontalAlignment(SwingConstants.RIGHT);
         panelPrincipal.add(jlCedula);
 
         JTextField jtCedula = new JTextField();
-        Font fontjtCedula = new Font("Roboto", Font.TRUETYPE_FONT, 25);
-        jtCedula.setBounds(250, 145, 230, 40);
-        jtCedula.setFont(fontjtCedula);
-        jtCedula.setBackground(new Color(240,240,240));
+        jtCedula.setBounds(17 * x, 10 * y, 14 * x, 3 * y);
+        jtCedula.setFont(new Font("Arial", Font.BOLD, 30));
+        jtCedula.setBackground(new Color(240, 240, 240));
         jtCedula.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jtCedula);
 
+
         //Campo Nombre de Usuario
         JLabel jlUsuario = new JLabel("Usuario");
-        Font fontjlUsario = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
-        jlUsuario.setBounds(20, 210, 220, 50);
-        jlUsuario.setFont(fontjlUsario);
-        //jlUsuario.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        jlUsuario.setBounds(x, 14 * y, 14 * x, 3 * y);
+        jlUsuario.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 45));
+        jlUsuario.setHorizontalAlignment(SwingConstants.RIGHT);
         panelPrincipal.add(jlUsuario);
 
         JTextField jtUsuario = new JTextField();
-        Font fontjtUsario = new Font("Roboto", Font.TRUETYPE_FONT, 25);
-        jtUsuario.setBounds(250, 215, 230, 40);
-        jtUsuario.setFont(fontjtUsario);
-        jtUsuario.setBackground(new Color(240,240,240));
+        jtUsuario.setBounds(17 * x, 14 * y, 14 * x, 3 * y);
+        jtUsuario.setFont(new Font("Arial", Font.BOLD, 30));
+        jtUsuario.setBackground(new Color(240, 240, 240));
         jtUsuario.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jtUsuario);
 
+
         //Campo de Correo
         JLabel jlCorreo = new JLabel("Correo");
-        Font fontjlCorreo = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
-        jlCorreo.setBounds(20, 280, 220, 50);
-        jlCorreo.setFont(fontjlCorreo);
-        //jlCorreo.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        jlCorreo.setBounds(x, 18 * y, 14 * x, 3 * y);
+        jlCorreo.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 45));
+        jlCorreo.setHorizontalAlignment(SwingConstants.RIGHT);
         panelPrincipal.add(jlCorreo);
 
         JTextField jtCorreo = new JTextField();
-        Font fontjtCorreo = new Font("Roboto", Font.TRUETYPE_FONT, 25);
-        jtCorreo.setBounds(250, 285, 230, 40);
-        jtCorreo.setFont(fontjtCorreo);
-        jtCorreo.setBackground(new Color(240,240,240));
+        jtCorreo.setBounds(17 * x, 18 * y, 14 * x, 3 * y);
+        jtCorreo.setFont(new Font("Arial", Font.BOLD, 30));
+        jtCorreo.setBackground(new Color(240, 240, 240));
         jtCorreo.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jtCorreo);
 
-        // Campo de Pasword
+        // capo telefono
+        JLabel jlTelefono = new JLabel("Telefono");
+        jlTelefono.setBounds(x, 22 * y, 14 * x, 3 * y);
+        jlTelefono.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 45));
+        jlTelefono.setHorizontalAlignment(SwingConstants.RIGHT);
+        panelPrincipal.add(jlTelefono);
 
+        JTextField jtTelefono = new JTextField();
+        jtTelefono.setBounds(17 * x, 22 * y, 14 * x, 3 * y);
+        jtTelefono.setFont(new Font("Arial", Font.BOLD, 30));
+        jtTelefono.setBackground(new Color(240, 240, 240));
+        jtTelefono.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panelPrincipal.add(jtTelefono);
+
+
+        // Campo de Pasword
         JLabel jlPassword = new JLabel("Password");
-        Font fontjlPassword = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
-        jlPassword.setBounds(20, 350, 220, 50);
-        jlPassword.setFont(fontjlPassword);
-        //jlPassword.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        jlPassword.setBounds(x, 26 * y, 14 * x, 3 * y);
+        jlPassword.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 40));
+        jlPassword.setHorizontalAlignment(SwingConstants.RIGHT);
         panelPrincipal.add(jlPassword);
 
         JPasswordField jpPassword = new JPasswordField();
-        Font fontjpPassword = new Font("Roboto", Font.TRUETYPE_FONT, 25);
-        jpPassword.setBounds(250, 355, 180, 40);
-        jpPassword.setFont(fontjpPassword);
-        jpPassword.setBackground(new Color(240,240,240));
+        jpPassword.setBounds(17 * x, 26 * y, 11 * x, 3 * y);
+        jpPassword.setFont(new Font("Arial", Font.BOLD, 30));
+        jpPassword.setBackground(new Color(240, 240, 240));
         jpPassword.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jpPassword);
-// Campo de Teléfono
-        JLabel jlPhone = new JLabel("Phone");
-        Font fontjlPhone = new Font("Roboto", Font.TRUETYPE_FONT, 45); // Tamaño inicial de la fuente
-        jlPhone.setBounds(20, 420, 220, 50);
-        jlPhone.setFont(fontjlPhone);
-//jlPhone.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        panelPrincipal.add(jlPhone);
 
-        JTextField jtPhone = new JTextField();
-        Font fontjtPhone = new Font("Roboto", Font.TRUETYPE_FONT, 25);
-        jtPhone.setBounds(250, 425, 180, 40);
-        jtPhone.setFont(fontjtPhone);
-        jtPhone.setBackground(new Color(240, 240, 240));
-        jtPhone.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        panelPrincipal.add(jtPhone);
         CustomImageButton mostrarContrasena = new CustomImageButton("/Recursos/ojo.jpg", 40, 40);
+        mostrarContrasena.setBounds(29 * x, 26 * y + (y / 2), 2 * x, 2 * y);
         mostrarContrasena.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        mostrarContrasena.setBounds(440,355,40,40);
         panelPrincipal.add(mostrarContrasena);
 
         mostrarContrasena.addActionListener(e -> {
@@ -141,9 +138,8 @@ public class UIRegister extends JDialog {
 
         // Boton Cancelar
         JButton jbCancelar = new JButton("Cancelar");
-        Font fontjbCancelar = new Font("Roboto", Font.TRUETYPE_FONT, 30);
-        jbCancelar.setFont(fontjbCancelar);
-        jbCancelar.setBounds(20, 490, 220, 50);
+        jbCancelar.setBounds(x, 30 * y, 14 * x, 3 * y);
+        jbCancelar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
         panelPrincipal.add(jbCancelar);
 
         jbCancelar.addActionListener(e -> {
@@ -152,20 +148,24 @@ public class UIRegister extends JDialog {
 
         // Boton Registar
         JButton jbRegistrarse = new JButton("Registrarse");
-        Font fontjbRegistrarse = new Font("Roboto", Font.TRUETYPE_FONT, 30);
-        jbRegistrarse.setFont(fontjbRegistrarse);
-        jbRegistrarse.setBounds(260, 490, 220, 50);
+        jbRegistrarse.setBounds(17 * x, 30 * y, 14 * x, 3 * y);
+        jbRegistrarse.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
         panelPrincipal.add(jbRegistrarse);
 
         jbRegistrarse.addActionListener(e -> {
-            String nombre = jtNombre.getText();
-            String cedula = jtCedula.getText();
-            String usuario = jtUsuario.getText();
-            String correo = jtCorreo.getText();
-            String password = new String(jpPassword.getPassword());
-            String phone = jtPhone.getText();
-            controler.registerClient(cedula,nombre,usuario,password,"Cliente",correo,phone);
-            dispose();
+
+            if (jtCedula.getText().isEmpty() || jtNombre.getText().isEmpty() || jtUsuario.getText().isEmpty() || jtCorreo.getText().isEmpty() || new String(jpPassword.getPassword()).isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                String nombre = jtNombre.getText();
+                String cedula = jtCedula.getText();
+                String usuario = jtUsuario.getText();
+                String correo = jtCorreo.getText();
+                String password = new String(jpPassword.getPassword());
+                String phone = jtTelefono.getText();
+                controler.registerClient(cedula, nombre, usuario, password, "Cliente", correo, phone);
+                dispose();
+            }
         });
 
         getContentPane().add(panelPrincipal);

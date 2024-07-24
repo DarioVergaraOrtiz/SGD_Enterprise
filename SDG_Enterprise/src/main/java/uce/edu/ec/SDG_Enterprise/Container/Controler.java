@@ -16,6 +16,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 public class Controler {
@@ -24,6 +25,7 @@ public class Controler {
     private ProductService productService;
     private RequestedService requestedService;
     User user;
+
     @Autowired
     public Controler(ProductService productService, RequestedService requestedService, UserService usuarioService) {
         this.productService = productService;
@@ -48,13 +50,16 @@ public class Controler {
             JOptionPane.showMessageDialog(null, "Credenciales incorrectas", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     public String userName() {
-        return  user.getUsername();
+        return user.getUsername();
     }
+
     public void startViewAdministrator() {
-        ViewAdmin viewAdmin= new ViewAdmin(this);
+        ViewAdmin viewAdmin = new ViewAdmin(this);
         viewAdmin.setVisible(true);
     }
+
     public void startViewRegister() {
         UIRegister viewRegister = new UIRegister(this);
         viewRegister.setVisible(true);
@@ -64,21 +69,23 @@ public class Controler {
         ViewClient viewClient = new ViewClient(this);
         viewClient.setVisible(true);
     }
+
     public void registerClient(String rucCedula, String name, String username, String password, String rol, String email, String phone) {
-        usuarioService.saveUser(rucCedula,name,username,password,rol,email,phone);
+        usuarioService.saveUser(rucCedula, name, username, password, rol, email, phone);
         JOptionPane.showMessageDialog(null, "Registro exitoso", "Registro", JOptionPane.INFORMATION_MESSAGE);
-        startViewAdministrator();
-    }
-    public void addProduct(){
-        productService.saveProduct("Armario","Madera",150.0);
-        productService.saveProduct("Mesa","Metal",85.5);
+        startClientView();
     }
 
-    public List<Product> getProduct(){
+    public void addProduct() {
+        productService.saveProduct("Armario", "Madera", 150.0);
+        productService.saveProduct("Mesa", "Metal", 85.5);
+    }
+
+    public List<Product> getProduct() {
         return productService.findAll();
     }
 
-    public void realizarCompra(List<Product> productosSeleccionados) {
+    public void realizarCompra(Set<Product> productosSeleccionados) {
         Long userId = user.getId(); // Suponiendo que user tiene un getId() para obtener el ID del usuario actual
         if (userId == null) {
             JOptionPane.showMessageDialog(null, "No se pudo encontrar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -97,15 +104,19 @@ public class Controler {
             JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     public List<Requested> getestado(String estado) {
         return requestedService.findByEstado(estado);
     }
-    public String getNameClient(long id){
+
+    public String getNameClient(long id) {
         return usuarioService.findById(id).get().getName();
     }
-    public Optional<Product> getProductById(long id){
+
+    public Optional<Product> getProductById(long id) {
         return productService.findById(id);
     }
+
     public List<String> getPendingRequestsDetails() {
         List<String> pendingRequestsDetails = new ArrayList<>();
 
@@ -115,12 +126,13 @@ public class Controler {
             String productName = productService.findById(requested.getProduct().getId()).get().getName();
             Long requestId = requested.getId();
 
-            String details =  "Solicitud: " + requestId +" - Cliente: " + clientName + " - Producto: " + productName;
+            String details = "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
             pendingRequestsDetails.add(details);
         }
 
         return pendingRequestsDetails;
     }
+
     public List<String> getMakingRequestsDetails() {
         List<String> pendingRequestsDetails = new ArrayList<>();
 
@@ -130,12 +142,13 @@ public class Controler {
             String productName = productService.findById(requested.getProduct().getId()).get().getName();
             Long requestId = requested.getId();
 
-            String details =  "Solicitud: " + requestId +" - Cliente: " + clientName + " - Producto: " + productName;
+            String details = "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
             pendingRequestsDetails.add(details);
         }
 
         return pendingRequestsDetails;
     }
+
     public void fabricarProducto(String selectedProductName) {
         // Obtener los detalles de todas las solicitudes pendientes
         List<String> pendingRequestsDetails = getPendingRequestsDetails();
@@ -224,9 +237,6 @@ public class Controler {
             JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
-
 
 
 }

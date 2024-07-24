@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uce.edu.ec.SDG_Enterprise.Container.Controler;
 import uce.edu.ec.SDG_Enterprise.Model.Product;
+
 import java.util.List;
 import javax.swing.*;
 import java.awt.*;
@@ -21,102 +22,143 @@ public class ViewClient extends JFrame {
 
     public ViewClient(Controler controler) {
         super("SDG_Enterprise");
+        setUndecorated(true);
+        setResizable(false);
+
+        // Generaliza el tamaño de la pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width, screenSize.height);
-        setUndecorated(true);
-        setLocationRelativeTo(null);
-        setResizable(false);
+
+        int x = screenSize.width / 96;
+        int y = screenSize.height / ((screenSize.height * 96) / screenSize.width);
+
 
         // Inicializa el carrito y productos seleccionados
         carritoModel = new DefaultListModel<>();
         productosSeleccionados = new HashSet<>();
 
         //Lienzo Princpal
-        BackgroundPanel panelLienzo = new BackgroundPanel("/Logo/logo_sdg.jpg", 0.2f);
-        panelLienzo.setBackground(new Color(255, 245, 220));
-        panelLienzo.setLayout(null);
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(null);
+
         this.controler = controler;
 
-        //Panel de Productos
-        JPanel productos = new JPanel();
-        productos.setLayout(null);
-        productos.setOpaque(false);
-        productos.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        productos.setBounds(50, 75, screenSize.width - 100, screenSize.height - 250);
-        panelLienzo.add(productos);
+        //Panel Encabezado y sus componentes
+        JPanel panelEncabezado = new JPanel();
+        panelEncabezado.setLayout(null);
+        panelEncabezado.setBounds(-3, 0, (96 * x) + 6, 6 * y);
+        panelEncabezado.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+
+        // Nombre del Clientes
+        JLabel jlClient = new JLabel("¡SDG Enterprise te da la bienvenida " + controler.userName() + "!");
+        jlClient.setBounds(2 * x, y, 50 * x, 4 * y);
+        jlClient.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 35));
+        jlClient.setHorizontalAlignment(SwingConstants.CENTER);
+        panelEncabezado.add(jlClient);
 
         // Boton de Salir
-        CustomImageButton jbSalir = new CustomImageButton("/Recursos/salir.jpg", 70, 65);
-        jbSalir.setBounds(screenSize.width - 105, 5, 90, 65);
-        panelLienzo.add(jbSalir);
+        CustomImageButton jbSalir = new CustomImageButton("/Recursos/salir.jpg", 10 * x, 4 * y);
+        jbSalir.setBounds(83 * x, y, 10 * x, 4 * y);
+        jbSalir.setContentAreaFilled(false);
+        jbSalir.setBorderPainted(false);
+        panelEncabezado.add(jbSalir);
 
         jbSalir.addActionListener(e -> {
             dispose();
         });
 
-        // Boton para ver pedidos pendientes
+        // Boton para ver pedidos pendientesjua
         JButton jbPendientes = new JButton("Pedidos");
-        jbPendientes.setBounds(screenSize.width - 240, 15, 125, 50);
-        jbPendientes.setFont(new Font("Arial", Font.ITALIC, 25));
-        panelLienzo.add(jbPendientes);
+        jbPendientes.setBounds(71 * x, y, 10 * x, 4 * y);
+        jbPendientes.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
 
+        jbPendientes.addActionListener(e -> {
+            PedidosUI pedidos = new PedidosUI();
+        });
+        panelEncabezado.add(jbPendientes);
 
-        // Nombre del Clientes
-        JLabel jlClient = new JLabel("Bienvenido: " + controler.userName());
-        Font fontjlClient = new Font("Sinserif", Font.ITALIC, 40);
-        jlClient.setFont(fontjlClient);
-        jlClient.setBounds(10, 10, 800, 55);
-        panelLienzo.add(jlClient);
+        panelPrincipal.add(panelEncabezado);
 
-        // Botón para actualizar productos
-        JButton jbActualizar = new JButton("Actualizar Productos");
-        jbActualizar.setBounds(screenSize.width - 250, screenSize.height - 100, 200, 50);
-        jbActualizar.setFont(new Font("Arial", Font.ITALIC, 20));
-        jbActualizar.addActionListener(e -> cargarProductos(productos));
-        panelLienzo.add(jbActualizar);
+        //Panel de Productos
+        JPanel productos = new JPanel();
+        productos.setLayout(null);
+        productos.setOpaque(false);
+        productos.setBounds(2 * x, 7 * y, 92 * x, 32 * y);
+        productos.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panelPrincipal.add(productos);
 
-        cargarProductos(productos);
+        // Carrito y sus funcionalidad
 
-        // Carrito
+        // Icono Carrito
+        BackgroundLabel jlCarrito = new BackgroundLabel("/Recursos/carrito.jpg", 1.0f);
+        jlCarrito.setBounds(2 * x, 42 * y + (y / 2), 6 * x, 5 * y);
+        panelPrincipal.add(jlCarrito);
+
         JList<String> jtCarrito = new JList<>(carritoModel);
-        jtCarrito.setBounds(50, screenSize.height - 160, 200, 100);
-        jtCarrito.setFont(new Font("Arial", Font.ITALIC, 15));
+        jtCarrito.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
         jtCarrito.setOpaque(false);
         jtCarrito.setBackground(new Color(235, 235, 220));
 
+        jtCarrito.setPreferredSize(new Dimension(23 * x, 20 * y));
         JScrollPane jsCarrito = new JScrollPane(jtCarrito);
-        jsCarrito.setBounds(50, screenSize.height - 160, 200, 100);
+        jsCarrito.setBounds(9 * x, 40 * y, 25 * x, 10 * y);
         jsCarrito.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         jsCarrito.setBackground(new Color(235, 235, 220));
-        panelLienzo.add(jsCarrito);
+        jsCarrito.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panelPrincipal.add(jsCarrito);
 
+
+        //Total Carrito
         jtTotalCarrito = new JLabel();
-        jtTotalCarrito.setBounds(50, screenSize.height - 50, 200, 40);
-        jtTotalCarrito.setFont(new Font("Arial", Font.ITALIC, 25));
-        jtTotalCarrito.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        jtTotalCarrito.setBounds(9 * x, 50 * y, 25 * x, 2 * y);
+        jtTotalCarrito.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 25));
         jtTotalCarrito.setBackground(new Color(235, 235, 220));
-        panelLienzo.add(jtTotalCarrito);
+        jtTotalCarrito.setHorizontalAlignment(SwingConstants.RIGHT);
+        //jtTotalCarrito.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panelPrincipal.add(jtTotalCarrito);
         jtTotalCarrito.setText("Total: $0.00");
 
-        //Reinciar Carrito
+        // Boton Reinciar Carrito
         JButton jbReiniciar = new JButton("Reiniciar Carrito");
-        jbReiniciar.setBounds(350, screenSize.height - 120, 300, 50);
-        jbReiniciar.setFont(new Font("Arial", Font.ITALIC, 25));
+        jbReiniciar.setBounds(37 * x, 41 * y, 20 * x, 5 * y);
+        jbReiniciar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
+        panelPrincipal.add(jbReiniciar);
+
         jbReiniciar.addActionListener(e -> {
             carritoModel.clear();
             productosSeleccionados.clear();
             jtTotalCarrito.setText("Total: $0.00");
         });
-        panelLienzo.add(jbReiniciar);
 
-        //Reinciar Comprar
+        // Boton Comprar
         JButton jbComprar = new JButton("Comprar");
-        jbComprar.setBounds(750, screenSize.height - 120, 300, 50);
-        jbComprar.setFont(new Font("Arial", Font.ITALIC, 25));
-        jbComprar.addActionListener(e -> controler.realizarCompra(controler.getProduct()));
-        panelLienzo.add(jbComprar);
+        jbComprar.setBounds(37 * x, 47 * y, 20 * x, 5 * y);
+        jbComprar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
+        panelPrincipal.add(jbComprar);
 
-        getContentPane().add(panelLienzo);
+        jbComprar.addActionListener(e -> {
+            carritoModel.clear();
+            productosSeleccionados.clear();
+            jtTotalCarrito.setText("Total: $0.00");
+            controler.realizarCompra(productosSeleccionados);
+        });
+
+        // Botón para actualizar productos
+        JButton jbActualizar = new JButton("Actualizar Productos");
+        jbActualizar.setBounds(59 * x, 41 * y, 20 * x, 5 * y);
+        jbActualizar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
+        panelPrincipal.add(jbActualizar);
+
+        jbActualizar.addActionListener(e -> cargarProductos(productos));
+
+        cargarProductos(productos);
+
+        //Logo Empresa
+        BackgroundLabel jlLogo = new BackgroundLabel("/Logo/logo_sdg.jpg", 1.0f);
+        jlLogo.setBounds(82 * x, 40 * y, 12 * x, 12 * y);
+        panelPrincipal.add(jlLogo);
+
+        getContentPane().add(panelPrincipal);
         this.setVisible(true);
 
     }
@@ -157,13 +199,13 @@ public class ViewClient extends JFrame {
             log.error("Error loading products", e);
         }
     }
+
     private String calcularTotal() {
         double total = productosSeleccionados.stream()
                 .mapToDouble(Product::getPrice)
                 .sum();
         return String.format("$%.2f", total);
     }
-
 
 
 }

@@ -5,70 +5,70 @@ import org.springframework.stereotype.Component;
 import uce.edu.ec.SDG_Enterprise.Container.Controler;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionListener;
+
 @Component
 public class UIPrincipal extends JFrame {
     @Autowired
     Controler controler;
 
     public UIPrincipal() {
-        super("Ui_Principal");
+        setTitle("Ui_Principal");
+        setUndecorated(true);
+        setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Generalizar valores de pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width, screenSize.height);
-        setUndecorated(true);
-        setLocationRelativeTo(null);
-        setResizable(false);
+
+        int x = screenSize.width / 96;
+        int y = screenSize.height / ((screenSize.height * 96) / screenSize.width);
 
         // Lienzo principal donde se agrega cualquier cosa
         JPanel lienzoPrincipal = new JPanel();
         lienzoPrincipal.setLayout(null);
-        lienzoPrincipal.setVisible(true);
         lienzoPrincipal.setBackground(new Color(255, 200, 0, 20));
 
-        // Control de bordes
-        Border bordePersonalizado = BorderFactory.createLineBorder(Color.BLACK, 2);
-
         // Panel del logo
-        BackgroundPanel panelLogo = new BackgroundPanel("/Logo/logo_sdg.jpg", 1.0f);
-        panelLogo.setLayout(null);
-        panelLogo.setOpaque(false);
-        panelLogo.setBounds(screenSize.width / 2 - 200, 50, 400, 400);
-        lienzoPrincipal.add(panelLogo);
+        BackgroundLabel labeLogo = new BackgroundLabel("/Logo/logo_sdg.jpg", 1.0f);
+        labeLogo.setOpaque(false);
+        labeLogo.setBounds(35 * x, 5 * y, 26 * x, 24 * y);
+        lienzoPrincipal.add(labeLogo);
 
         // Ingresar Credenciales
         // Nombre de Usuario
-        JLabel jlUser = new JLabel("User");
-        Font fontjlUser = new Font("SansSerif", Font.BOLD, 50);
-        jlUser.setBounds(screenSize.width / 2 - 250, screenSize.height / 2 + 50, 200, 50);
-        jlUser.setFont(fontjlUser);
+        JLabel jlUser = new JLabel("Usuario");
+        jlUser.setBounds(29 * x, 31 * y, 16 * x, 4 * y);
+        jlUser.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 50));
+        jlUser.setHorizontalAlignment(JLabel.RIGHT);
         lienzoPrincipal.add(jlUser);
 
         JTextField jtUser = new JTextField();
-        Font fontjtUser = new Font("SansSerif", Font.BOLD, 30);
-        jtUser.setBounds(screenSize.width / 2 - 100, screenSize.height / 2 + 50, 300, 50);
-        jtUser.setFont(fontjtUser);
-        jtUser.setBorder(bordePersonalizado);
+        jtUser.setBounds(46 * x, 31 * y + (y / 2), 21 * x, 3 * y);
+        jtUser.setFont(new Font("Arial", Font.BOLD, 35));
+        jtUser.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         lienzoPrincipal.add(jtUser);
 
         // Contraseña
         JLabel jlPassword = new JLabel("Password");
-        Font fontjlPassword = new Font("SansSerif", Font.BOLD, 50);
-        jlPassword.setBounds(screenSize.width / 2 - 370, screenSize.height / 2 + 150, 300, 50);
-        jlPassword.setFont(fontjlPassword);
+        jlPassword.setBounds(29 * x, 37 * y, 16 * x, 4 * y);
+        jlPassword.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 48));
+        jlPassword.setHorizontalAlignment(JLabel.RIGHT);
         lienzoPrincipal.add(jlPassword);
 
         JPasswordField jpPassword = new JPasswordField();
-        Font fontjpPassword = new Font("SansSerif", Font.BOLD, 30);
-        jpPassword.setBounds(screenSize.width / 2 - 100, screenSize.height / 2 + 150, 300, 50);
-        jpPassword.setFont(fontjpPassword);
-        jpPassword.setBorder(bordePersonalizado);
+        jpPassword.setBounds(46 * x, 37 * y + (y / 2), 21 * x, 3 * y);
+        Font fontjpPassword = new Font("SansSerif", Font.BOLD, 35);
+        jpPassword.setFont(new Font("Arial", Font.BOLD, 30));
+        jpPassword.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         lienzoPrincipal.add(jpPassword);
 
-        CustomImageButton mostrarContrasena = new CustomImageButton("/Recursos/ojo.jpg", 40, 38);
-        mostrarContrasena.setBorder(bordePersonalizado);
-        mostrarContrasena.setBounds(screenSize.width / 2 + 210, screenSize.height / 2 + 156, 40, 38);
+        CustomImageButton mostrarContrasena = new CustomImageButton("/Recursos/ojo.jpg", 3 * x, 3 * y);
+        mostrarContrasena.setBounds(68 * x, (37 * y) + (y / 2), 3 * x, 3 * y);
+        mostrarContrasena.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        mostrarContrasena.setOpaque(false);
         lienzoPrincipal.add(mostrarContrasena);
 
         mostrarContrasena.addActionListener(e -> {
@@ -79,34 +79,38 @@ public class UIPrincipal extends JFrame {
 
         // Botón De Registrarse
         JButton jbRegistrarse = new JButton("Registrarse");
-        Font fontjbRegistrarse = new Font("SansSerif", Font.BOLD, 30);
-        jbRegistrarse.setFont(fontjbRegistrarse);
-        jbRegistrarse.setBounds(screenSize.width / 2 - 260, screenSize.height / 2 + 250, 250, 50);
-        jbRegistrarse.setBorder(bordePersonalizado);
+        jbRegistrarse.setBounds(33 * x, 43 * y, 14 * x, 3 * y);
+        jbRegistrarse.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
+        jbRegistrarse.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         lienzoPrincipal.add(jbRegistrarse);
 
         jbRegistrarse.addActionListener(e -> {
-        controler.startViewRegister();
+            controler.startViewRegister();
         });
 
         // Botón De Ingresar
         JButton jbIngresar = new JButton("Ingresar");
-        Font fontjbIngresar = new Font("SansSerif", Font.BOLD, 30);
-        jbIngresar.setFont(fontjbRegistrarse);
-        jbIngresar.setBounds(screenSize.width / 2 + 20, screenSize.height / 2 + 250, 250, 50);
-        jbIngresar.setBorder(bordePersonalizado);
+        jbIngresar.setBounds(49 * x, 43 * y, 14 * x, 3 * y);
+        jbIngresar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
+        jbIngresar.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         lienzoPrincipal.add(jbIngresar);
 
-        jbIngresar.addActionListener(e -> {
+        // Definir el ActionListener para ingresar
+        ActionListener ingresarListener = e -> {
             String usuario = jtUser.getText();
             String contrasena = new String(jpPassword.getPassword());
-            controler.iniciarSegundaVista(usuario,contrasena);
+            controler.iniciarSegundaVista(usuario, contrasena);
+            jpPassword.setText("");
+            jtUser.setText("");
+        };
 
-        });
+        jbIngresar.addActionListener(ingresarListener);
+
+        // Agregar ActionListener a los campos de texto
+        jtUser.addActionListener(ingresarListener);
+        jpPassword.addActionListener(ingresarListener);
 
         getContentPane().add(lienzoPrincipal);
-        lienzoPrincipal.revalidate();
-        lienzoPrincipal.repaint();
-        this.setVisible(true);
+        setVisible(true);
     }
 }
