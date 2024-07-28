@@ -163,6 +163,7 @@ public class ViewClient extends JFrame {
     }
 
     private void cargarProductos(JPanel productosPanel) {
+        controler.addProduct();
         productosPanel.removeAll();
         try {
 

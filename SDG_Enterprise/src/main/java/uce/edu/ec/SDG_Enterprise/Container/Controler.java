@@ -83,6 +83,7 @@ public class Controler {
     public void addProduct() {
         productService.saveProduct("Armario", "Madera", 150.0);
         productService.saveProduct("Mesa", "Metal", 85.5);
+        productService.saveProduct("Cocina", "Carton", 90);
     }
 
     public List<Product> getProduct() {
@@ -97,14 +98,15 @@ public class Controler {
         }
         String estado = "Pendiente";
 
-        try {
-            for (Product producto : productosSeleccionados) {
+        productosSeleccionados.stream().forEach(producto -> {
+            try {
                 requestedService.create(user, producto, estado);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-            JOptionPane.showMessageDialog(null, "Compra realizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        });
+
+        JOptionPane.showMessageDialog(null, "Compra realizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public List<Requested> getestado(String estado) {

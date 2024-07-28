@@ -11,6 +11,6 @@ public interface IProductRepository extends JpaRepository<Product, Long> {
 
   //  @Query("SELECT p FROM Product p JOIN FETCH p.processes WHERE p.id = :productId")
   //  Optional<Product> findByIdWithProcesses(@Param("productId") Long productId);
-
+    boolean existsByNameAndMaterial(String name, String material);
 
 }
