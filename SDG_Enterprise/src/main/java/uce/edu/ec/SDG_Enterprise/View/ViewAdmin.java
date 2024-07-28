@@ -1,10 +1,9 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
 import uce.edu.ec.SDG_Enterprise.Container.Controler;
+import uce.edu.ec.SDG_Enterprise.Sevice.ActualizacionPendientesWorker;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.util.List;
 
@@ -13,12 +12,17 @@ public class ViewAdmin extends JFrame {
     private JPanel panelFabricacion;
     private String selectedProduct;
     List<String> productosPendientes;
+    private DefaultListModel<String> modelo;
+
+
 
 
     public ViewAdmin(Controler controler) {
         super("ViewAdmin");
         setUndecorated(true);
         setResizable(false);
+        startBackgroundUpdate();
+        this.modelo = new DefaultListModel<>();
 
         // Generaliza el tamaño de la pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -27,17 +31,18 @@ public class ViewAdmin extends JFrame {
         int x = screenSize.width / 96;
         int y = screenSize.height / ((screenSize.height * 96) / screenSize.width);
 
-
         this.controler = controler;
+
+        JList<String> jlProductosPendientes = new JList<>(this.modelo);
+
 
         // Obtener lista inicial de productos pendientes
         productosPendientes = controler.getPendingRequestsDetails();
 
-        //Panel que contiene todo
+        // Panel que contiene
         JPanel panelPrincipal = new JPanel();
         panelPrincipal.setLayout(null);
         panelPrincipal.setBackground(new Color(245, 245, 220));
-
 
         // Panel del encabezado
         JPanel panelEncabezado = new JPanel();
@@ -45,7 +50,7 @@ public class ViewAdmin extends JFrame {
         panelEncabezado.setBounds(-3, 0, (96 * x) + 6, 6 * y);
         panelEncabezado.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
 
-        // bienvenida al usuario
+        // Bienvenida al usuario
         JLabel jlClient = new JLabel("Bienvenido " + controler.userName());
         jlClient.setBounds(x, y, 62 * x, 4 * y);
         jlClient.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 40));
@@ -65,7 +70,6 @@ public class ViewAdmin extends JFrame {
 
         panelPrincipal.add(panelEncabezado);
 
-
         // Configurar la lista de productos pendientes
         DefaultListModel<String> modelo = new DefaultListModel<>();
         productosPendientes = controler.getPendingRequestsDetails();
@@ -73,7 +77,7 @@ public class ViewAdmin extends JFrame {
             modelo.addElement(producto);
         }
 
-        JList<String> jlProductosPendientes = new JList<>(modelo);
+
         jlProductosPendientes.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
         jlProductosPendientes.setOpaque(false);
 
@@ -89,26 +93,30 @@ public class ViewAdmin extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 selectedProduct = jlProductosPendientes.getSelectedValue();
                 updateFabricationPanel(selectedProduct, x, y);
+                jlProductosPendientes.repaint();
             }
         });
 
-        // Configurar el panel de fabricación
         panelFabricacion = new JPanel();
-        panelFabricacion.setLayout(null);
-        panelFabricacion.setBounds(65 * x, 8 * y, 29 * x, 30 * y);
-        panelFabricacion.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panelFabricacion.setLayout(new BoxLayout(panelFabricacion, BoxLayout.Y_AXIS));
         panelFabricacion.setBackground(new Color(245, 245, 220));
-        panelPrincipal.add(panelFabricacion);
+
+        JScrollPane scrollPanelFabricacion = new JScrollPane(panelFabricacion);
+        scrollPanelFabricacion.setBounds(65 * x, 8 * y, 29 * x, 30 * y);
+        scrollPanelFabricacion.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        scrollPanelFabricacion.setBackground(new Color(245, 245, 220));
+        scrollPanelFabricacion.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPanelFabricacion.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        panelPrincipal.add(scrollPanelFabricacion);
 
         // Configurar botones
         JButton jbEliminar = new JButton("Eliminar");
-        jbEliminar.setBounds(67*x, 40*y, 25*x, 5*y);
+        jbEliminar.setBounds(67 * x, 40 * y, 25 * x, 5 * y);
         jbEliminar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
         jbEliminar.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jbEliminar);
 
         jbEliminar.addActionListener(e -> {
-
             if (selectedProduct != null) {
                 controler.eliminarSolicitudPorId(selectedProduct);
                 productosPendientes = controler.getPendingRequestsDetails();
@@ -121,11 +129,10 @@ public class ViewAdmin extends JFrame {
             } else {
                 JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
         });
 
         JButton jbFabricar = new JButton("Fabricar");
-        jbFabricar.setBounds(67*x, 47*y, 25*x, 5*y);
+        jbFabricar.setBounds(67 * x, 47 * y, 25 * x, 5 * y);
         jbFabricar.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
         jbFabricar.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panelPrincipal.add(jbFabricar);
@@ -145,36 +152,61 @@ public class ViewAdmin extends JFrame {
             }
         });
 
-
-
-
         // Agregar panel principal al JFrame y hacer visible
         getContentPane().add(panelPrincipal);
         setVisible(true);
     }
+    private void startBackgroundUpdate() {
+        Thread updateThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        actualizarListaProductosPendientes();
+                        Thread.sleep(5000); // Espera 5 segundos antes de actualizar nuevamente
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
+        updateThread.setDaemon(true); // Permite que el hilo se detenga cuando se cierra la aplicación
+        updateThread.start();
+
+    }
+    private void actualizarListaProductosPendientes() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                List<String> productosPendientes = controler.getPendingRequestsDetails();
+                modelo.clear();
+                for (String producto : productosPendientes) {
+                    modelo.addElement(producto);
+                }
+            }
+        });
+    }
     private void updateFabricationPanel(String selectedRequest, int x, int y) {
         panelFabricacion.removeAll();
 
         JLabel labelTitulo = new JLabel("Detalles de la solicitud en fabricación:");
-        labelTitulo.setBounds(0, 0, 29 * x, 4 * y);
         labelTitulo.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
         panelFabricacion.add(labelTitulo);
 
-        // Aquí obtienes los detalles de la solicitud en estado "Fabricando..."
         List<String> makingRequestsDetails = controler.getMakingRequestsDetails();
 
         for (String details : makingRequestsDetails) {
-            if (details.equals(selectedRequest)) { // Buscas la solicitud seleccionada
                 JLabel labelDetalles = new JLabel(details);
-                labelDetalles.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 20));
-                labelDetalles.setBounds(x, 5 * y, 18 * x, 3 * y);
+                labelDetalles.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 16));
                 panelFabricacion.add(labelDetalles);
-                break; // Terminas el ciclo una vez que encuentres la solicitud
-            }
+
         }
+
 
         panelFabricacion.revalidate();
         panelFabricacion.repaint();
     }
+
+
 }

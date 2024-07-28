@@ -140,7 +140,6 @@ public class ViewClient extends JFrame {
             carritoModel.clear();
             productosSeleccionados.clear();
             jtTotalCarrito.setText("Total: $0.00");
-
         });
 
         // Botón para actualizar productos
