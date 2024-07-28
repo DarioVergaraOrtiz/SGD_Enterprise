@@ -163,42 +163,44 @@ public class ViewClient extends JFrame {
     }
 
     private void cargarProductos(JPanel productosPanel) {
-        controler.addProduct();
-        productosPanel.removeAll();
-        try {
+        SwingUtilities.invokeLater(() -> {
+            controler.addProduct();
+            productosPanel.removeAll();
+            try {
+                List<Product> productos = controler.getProduct();
 
-            List<Product> productos = controler.getProduct();
+                int y = 10;
+                for (Product producto : productos) {
+                    JLabel productoLabel = new JLabel(producto.getName() + " - " + producto.getMaterial() + " - $" + producto.getPrice());
+                    productoLabel.setBounds(10, y, productosPanel.getWidth() - 20, 30);
+                    productoLabel.setOpaque(true);
+                    productoLabel.setBackground(new Color(235, 235, 220));
+                    productoLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
-            int y = 10;
-            for (Product producto : productos) {
-                JLabel productoLabel = new JLabel(producto.getName() + " - " + producto.getMaterial() + " - $" + producto.getPrice());
-                productoLabel.setBounds(10, y, productosPanel.getWidth() - 20, 30);
-                productoLabel.setOpaque(true);
-                productoLabel.setBackground(new Color(235, 235, 220));
-                productoLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+                    // Añadir MouseListener para seleccionar producto
+                    productoLabel.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (!productosSeleccionados.contains(producto)) {
+                                productosSeleccionados.add(producto);
+                                carritoModel.addElement(producto.getName() + " - $" + producto.getPrice());
 
-                // Añadir MouseListener para seleccionar producto
-                productoLabel.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if (!productosSeleccionados.contains(producto)) {
-                            productosSeleccionados.add(producto);
-                            carritoModel.addElement(producto.getName() + " - $" + producto.getPrice());
-
-                            jtTotalCarrito.setText("Total: " + calcularTotal());
+                                jtTotalCarrito.setText("Total: " + calcularTotal());
+                            }
                         }
-                    }
-                });
+                    });
 
-                productosPanel.add(productoLabel);
-                y += 40;
+                    productosPanel.add(productoLabel);
+                    y += 40;
+                }
+                productosPanel.revalidate();
+                productosPanel.repaint();
+            } catch (Exception e) {
+                log.error("Error loading products", e);
             }
-            productosPanel.revalidate();
-            productosPanel.repaint();
-        } catch (Exception e) {
-            log.error("Error loading products", e);
-        }
+        });
     }
+
 
     private String calcularTotal() {
         double total = productosSeleccionados.stream()

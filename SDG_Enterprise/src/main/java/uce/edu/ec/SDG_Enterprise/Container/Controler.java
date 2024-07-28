@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,9 +48,9 @@ public class Controler {
             String rol = user.getRol();
 
             if ("Administrador".equalsIgnoreCase(rol)) {
-                startViewAdministrator();
+                SwingUtilities.invokeLater(this::startViewAdministrator);
             } else if ("Cliente".equalsIgnoreCase(rol)) {
-                startClientView();
+                SwingUtilities.invokeLater(this::startClientView);
             }
         } else {
             JOptionPane.showMessageDialog(null, "Credenciales incorrectas", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
@@ -98,16 +99,21 @@ public class Controler {
         }
         String estado = "Pendiente";
 
-        productosSeleccionados.stream().forEach(producto -> {
-            try {
-                requestedService.create(user, producto, estado);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        });
+        CompletableFuture.runAsync(() -> {
+            productosSeleccionados.stream().forEach(producto -> {
+                try {
+                    requestedService.create(user, producto, estado);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
 
-        JOptionPane.showMessageDialog(null, "Compra realizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(null, "Compra realizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            });
+        });
     }
+
 
     public List<Requested> getestado(String estado) {
         return requestedService.findByEstado(estado);
@@ -145,52 +151,66 @@ public class Controler {
     }
 
     public void fabricarProducto(String selectedProductName) {
-        getPendingRequestsDetails().stream()
-                .filter(details -> details.contains(selectedProductName))
-                .findFirst()
-                .ifPresentOrElse(details -> {
-                    String[] parts = details.split(" - ");
-                    String idPart = parts[0];
-                    String[] idParts = idPart.split(": ");
-                    if (idParts.length == 2) {
-                        try {
-                            Long requestId = Long.parseLong(idParts[1].trim());
-                            Requested requestToFabricate = requestedService.findById(requestId).orElse(null);
-                            if (requestToFabricate != null) {
-                                requestToFabricate.setEstado("Fabricando...");
-                                requestedService.save(requestToFabricate);
-                                JOptionPane.showMessageDialog(null, "El producto seleccionado ha sido marcado como 'Fabricando...'.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        CompletableFuture.runAsync(() -> {
+            getPendingRequestsDetails().stream()
+                    .filter(details -> details.contains(selectedProductName))
+                    .findFirst()
+                    .ifPresentOrElse(details -> {
+                        String[] parts = details.split(" - ");
+                        String idPart = parts[0];
+                        String[] idParts = idPart.split(": ");
+                        if (idParts.length == 2) {
+                            try {
+                                Long requestId = Long.parseLong(idParts[1].trim());
+                                Requested requestToFabricate = requestedService.findById(requestId).orElse(null);
+                                if (requestToFabricate != null) {
+                                    requestToFabricate.setEstado("Fabricando...");
+                                    requestedService.save(requestToFabricate);
+                                    SwingUtilities.invokeLater(() -> {
+                                        JOptionPane.showMessageDialog(null, "El producto seleccionado ha sido marcado como 'Fabricando...'.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                                    });
+                                }
+                            } catch (NumberFormatException e) {
+                                System.err.println("No se pudo convertir '" + idParts[1].trim() + "' a Long.");
                             }
-                        } catch (NumberFormatException e) {
-                            System.err.println("No se pudo convertir '" + idParts[1].trim() + "' a Long.");
+                        } else {
+                            System.err.println("Formato incorrecto para idPart: " + idPart);
                         }
-                    } else {
-                        System.err.println("Formato incorrecto para idPart: " + idPart);
-                    }
-                }, () -> JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE));
+                    }, () -> SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }));
+        });
     }
 
+
     public void eliminarSolicitudPorId(String selectedProductName) {
-        getPendingRequestsDetails().stream()
-                .filter(details -> details.contains(selectedProductName))
-                .findFirst()
-                .ifPresentOrElse(details -> {
-                    String[] parts = details.split(" - ");
-                    String idPart = parts[0];
-                    String[] idParts = idPart.split(": ");
-                    if (idParts.length == 2) {
-                        try {
-                            Long requestId = Long.parseLong(idParts[1].trim());
-                            requestedService.deleteById(requestId);
-                            JOptionPane.showMessageDialog(null, "La solicitud con ID " + requestId + " ha sido eliminada.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                        } catch (NumberFormatException e) {
-                            System.err.println("No se pudo convertir '" + idParts[1].trim() + "' a Long.");
+        CompletableFuture.runAsync(() -> {
+            getPendingRequestsDetails().stream()
+                    .filter(details -> details.contains(selectedProductName))
+                    .findFirst()
+                    .ifPresentOrElse(details -> {
+                        String[] parts = details.split(" - ");
+                        String idPart = parts[0];
+                        String[] idParts = idPart.split(": ");
+                        if (idParts.length == 2) {
+                            try {
+                                Long requestId = Long.parseLong(idParts[1].trim());
+                                requestedService.deleteById(requestId);
+                                SwingUtilities.invokeLater(() -> {
+                                    JOptionPane.showMessageDialog(null, "La solicitud con ID " + requestId + " ha sido eliminada.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                                });
+                            } catch (NumberFormatException e) {
+                                System.err.println("No se pudo convertir '" + idParts[1].trim() + "' a Long.");
+                            }
+                        } else {
+                            System.err.println("Formato incorrecto para idPart: " + idPart);
                         }
-                    } else {
-                        System.err.println("Formato incorrecto para idPart: " + idPart);
-                    }
-                }, () -> JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE));
+                    }, () -> SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }));
+        });
     }
+
     public void startBackgroundUpdate(Runnable updateTask) {
         if (executorService == null) {
             executorService = Executors.newSingleThreadScheduledExecutor();
