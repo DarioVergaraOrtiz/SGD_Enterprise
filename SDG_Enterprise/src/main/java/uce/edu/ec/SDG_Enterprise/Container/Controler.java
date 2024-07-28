@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import uce.edu.ec.SDG_Enterprise.Model.Product;
 import uce.edu.ec.SDG_Enterprise.Model.Requested;
 import uce.edu.ec.SDG_Enterprise.Model.User;
-import uce.edu.ec.SDG_Enterprise.Sevice.ActualizacionPendientesWorker;
 import uce.edu.ec.SDG_Enterprise.Sevice.ProductService;
 import uce.edu.ec.SDG_Enterprise.Sevice.RequestedService;
 import uce.edu.ec.SDG_Enterprise.Sevice.UserService;
@@ -25,7 +24,6 @@ public class Controler {
     private UserService usuarioService;
     private ProductService productService;
     private RequestedService requestedService;
-    private ActualizacionPendientesWorker worker;
     private DefaultListModel<String> modeloPendientes;
     User user;
 
@@ -240,10 +238,6 @@ public class Controler {
         if (!found) {
             JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    }
-    public void iniciarWorker() {
-        worker = new ActualizacionPendientesWorker( modeloPendientes);
-        worker.execute();
     }
     public String concatProcessToProduct(long id_1, long id_2){
         productService.addProcessToProduct(id_1,id_2);

@@ -1,7 +1,6 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
 import uce.edu.ec.SDG_Enterprise.Container.Controler;
-import uce.edu.ec.SDG_Enterprise.Sevice.ActualizacionPendientesWorker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -202,8 +201,6 @@ public class ViewAdmin extends JFrame {
                 panelFabricacion.add(labelDetalles);
 
         }
-
-
         panelFabricacion.revalidate();
         panelFabricacion.repaint();
     }
