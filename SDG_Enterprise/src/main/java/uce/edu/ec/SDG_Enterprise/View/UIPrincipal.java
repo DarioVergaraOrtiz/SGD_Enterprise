@@ -106,7 +106,6 @@ public class UIPrincipal extends JFrame {
 
         jbIngresar.addActionListener(ingresarListener);
 
-        // Agregar ActionListener a los campos de texto
         jtUser.addActionListener(ingresarListener);
         jpPassword.addActionListener(ingresarListener);
 

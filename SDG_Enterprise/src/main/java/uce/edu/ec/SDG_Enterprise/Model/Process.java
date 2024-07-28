@@ -14,6 +14,7 @@ public class Process {
     private Long id;
 
     private String nameProcess;
+    private String nameMaterial;
 
     private Double time;
 
@@ -30,6 +31,14 @@ public class Process {
     }
 
     public Process() {
+    }
+
+    public String getNameMaterial() {
+        return nameMaterial;
+    }
+
+    public void setNameMaterial(String nameMaterial) {
+        this.nameMaterial = nameMaterial;
     }
 
     public Long getId() {

@@ -22,12 +22,27 @@ public class ProcessService {
     public List<Process> getAllProcesses() {
         return processRepository.findAll();
     }
+    public Process saveProcess(Process process) {
 
+        return processRepository.save(process);
+    }
     public Process createProcess(Process process) {
         return processRepository.save(process);
     }
 
     public void deleteProcess(Long id) {
         processRepository.deleteById(id);
+    }
+    public void updateProcessTime(String name,  Double newTime) {
+        List<Process> processes = processRepository.findByNameProcess(name);
+
+        if (!processes.isEmpty()) {
+            Process process = processes.get(0);
+            process.setTime(newTime);
+            processRepository.save(process);
+            System.out.println("Time updated successfully.");
+        } else {
+            System.out.println("No process found with the specified name and time.");
+        }
     }
 }
