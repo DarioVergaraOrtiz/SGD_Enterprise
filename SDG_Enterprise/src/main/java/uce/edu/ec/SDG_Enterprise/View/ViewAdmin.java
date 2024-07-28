@@ -5,6 +5,9 @@ import uce.edu.ec.SDG_Enterprise.Container.Controler;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ViewAdmin extends JFrame {
     private Controler controler;
@@ -20,7 +23,6 @@ public class ViewAdmin extends JFrame {
         super("ViewAdmin");
         setUndecorated(true);
         setResizable(false);
-        startBackgroundUpdate();
         this.modelo = new DefaultListModel<>();
 
         // Generaliza el tamaño de la pantalla
@@ -35,8 +37,8 @@ public class ViewAdmin extends JFrame {
         JList<String> jlProductosPendientes = new JList<>(this.modelo);
 
 
-        // Obtener lista inicial de productos pendientes
-        productosPendientes = controler.getPendingRequestsDetails();
+        //puede ser que se borre
+        //productosPendientes = controler.getPendingRequestsDetails();
 
         // Panel que contiene
         JPanel panelPrincipal = new JPanel();
@@ -154,35 +156,15 @@ public class ViewAdmin extends JFrame {
         // Agregar panel principal al JFrame y hacer visible
         getContentPane().add(panelPrincipal);
         setVisible(true);
+        controler.startBackgroundUpdate(this::actualizarListaProductosPendientes);
     }
-    private void startBackgroundUpdate() {
-        Thread updateThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        actualizarListaProductosPendientes();
-                        Thread.sleep(5000); // Espera 5 segundos antes de actualizar nuevamente
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
 
-        updateThread.setDaemon(true); // Permite que el hilo se detenga cuando se cierra la aplicación
-        updateThread.start();
-
-    }
     private void actualizarListaProductosPendientes() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                List<String> productosPendientes = controler.getPendingRequestsDetails();
-                modelo.clear();
-                for (String producto : productosPendientes) {
-                    modelo.addElement(producto);
-                }
+        SwingUtilities.invokeLater(() -> {
+            List<String> productosPendientes = controler.getPendingRequestsDetails();
+            modelo.clear();
+            for (String producto : productosPendientes) {
+                modelo.addElement(producto);
             }
         });
     }

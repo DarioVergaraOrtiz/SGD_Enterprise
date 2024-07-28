@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Controller
 public class Controler {
@@ -24,7 +28,7 @@ public class Controler {
     private UserService usuarioService;
     private ProductService productService;
     private RequestedService requestedService;
-    private DefaultListModel<String> modeloPendientes;
+    private ScheduledExecutorService executorService;
     User user;
 
     @Autowired
@@ -32,7 +36,6 @@ public class Controler {
         this.productService = productService;
         this.requestedService = requestedService;
         this.usuarioService = usuarioService;
-        this.modeloPendientes = new DefaultListModel<>();
         user = new User();
     }
 
@@ -75,7 +78,6 @@ public class Controler {
     public void registerClient(String rucCedula, String name, String username, String password, String rol, String email, String phone) {
         usuarioService.saveUser(rucCedula, name, username, password, rol, email, phone);
         JOptionPane.showMessageDialog(null, "Registro exitoso", "Registro", JOptionPane.INFORMATION_MESSAGE);
-        //startClientView();
     }
 
     public void addProduct() {
@@ -88,19 +90,17 @@ public class Controler {
     }
 
     public void realizarCompra(Set<Product> productosSeleccionados) {
-        Long userId = user.getId(); // Suponiendo que user tiene un getId() para obtener el ID del usuario actual
+        Long userId = user.getId();
         if (userId == null) {
             JOptionPane.showMessageDialog(null, "No se pudo encontrar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        String estado = "Pendiente"; // Estado por defecto al realizar una compra
+        String estado = "Pendiente";
 
         try {
             for (Product producto : productosSeleccionados) {
                 requestedService.create(user, producto, estado);
             }
-
             JOptionPane.showMessageDialog(null, "Compra realizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -120,131 +120,85 @@ public class Controler {
     }
 
     public List<String> getPendingRequestsDetails() {
-        List<String> pendingRequestsDetails = new ArrayList<>();
-
-        List<Requested> pendingRequests = requestedService.findByEstado("pendiente");
-        for (Requested requested : pendingRequests) {
-            String clientName = usuarioService.findById(requested.getUser().getId()).get().getName();
-            String productName = productService.findById(requested.getProduct().getId()).get().getName();
-            Long requestId = requested.getId();
-
-            String details = "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
-            pendingRequestsDetails.add(details);
-        }
-
-        return pendingRequestsDetails;
+        return requestedService.findByEstado("pendiente").stream()
+                .map(requested -> {
+                    String clientName = usuarioService.findById(requested.getUser().getId()).map(User::getName).orElse("Desconocido");
+                    String productName = productService.findById(requested.getProduct().getId()).map(Product::getName).orElse("Desconocido");
+                    Long requestId = requested.getId();
+                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
+                })
+                .collect(Collectors.toList());
     }
 
+
     public List<String> getMakingRequestsDetails() {
-        List<String> pendingRequestsDetails = new ArrayList<>();
-
-        List<Requested> pendingRequests = requestedService.findByEstado("Fabricando...");
-        for (Requested requested : pendingRequests) {
-            String clientName = usuarioService.findById(requested.getUser().getId()).get().getName();
-            String productName = productService.findById(requested.getProduct().getId()).get().getName();
-            Long requestId = requested.getId();
-
-            String details = "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
-            pendingRequestsDetails.add(details);
-        }
-
-        return pendingRequestsDetails;
+        return requestedService.findByEstado("Fabricando...").stream()
+                .map(requested -> {
+                    String clientName = usuarioService.findById(requested.getUser().getId()).orElseThrow().getName();
+                    String productName = productService.findById(requested.getProduct().getId()).orElseThrow().getName();
+                    Long requestId = requested.getId();
+                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
+                })
+                .collect(Collectors.toList());
     }
 
     public void fabricarProducto(String selectedProductName) {
-        // Obtener los detalles de todas las solicitudes pendientes
-        List<String> pendingRequestsDetails = getPendingRequestsDetails();
-
-        // Buscar la solicitud pendiente del producto seleccionado
-        boolean found = false;
-        for (String details : pendingRequestsDetails) {
-            if (details.contains(selectedProductName)) {
-                // Extraer el ID de la solicitud para actualizar su estado
-                String[] parts = details.split(" - ");
-                String idPart = parts[0]; // Esto asume el formato "Solicitud: ID"
-
-                // Extraer el ID de la solicitud
-                String[] idParts = idPart.split(": ");
-                if (idParts.length != 2) {
-                    System.err.println("Formato incorrecto para idPart: " + idPart);
-                    continue;
-                }
-                String requestIdStr = idParts[1].trim();
-
-                // Obtener el ID de la solicitud como Long
-                Long requestedId;
-                try {
-                    requestedId = Long.parseLong(requestIdStr);
-                } catch (NumberFormatException e) {
-                    System.err.println("No se pudo convertir '" + requestIdStr + "' a Long.");
-                    continue; // O manejar el error de alguna manera adecuada
-                }
-
-                // Obtener la solicitud por su ID
-                Requested requestToFabricate = requestedService.findById(requestedId).orElse(null);
-                if (requestToFabricate != null) {
-                    requestToFabricate.setEstado("Fabricando...");
-                    requestedService.save(requestToFabricate);
-
-                    JOptionPane.showMessageDialog(null, "El producto seleccionado ha sido marcado como 'Fabricando...'.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found) {
-            JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        getPendingRequestsDetails().stream()
+                .filter(details -> details.contains(selectedProductName))
+                .findFirst()
+                .ifPresentOrElse(details -> {
+                    String[] parts = details.split(" - ");
+                    String idPart = parts[0];
+                    String[] idParts = idPart.split(": ");
+                    if (idParts.length == 2) {
+                        try {
+                            Long requestId = Long.parseLong(idParts[1].trim());
+                            Requested requestToFabricate = requestedService.findById(requestId).orElse(null);
+                            if (requestToFabricate != null) {
+                                requestToFabricate.setEstado("Fabricando...");
+                                requestedService.save(requestToFabricate);
+                                JOptionPane.showMessageDialog(null, "El producto seleccionado ha sido marcado como 'Fabricando...'.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        } catch (NumberFormatException e) {
+                            System.err.println("No se pudo convertir '" + idParts[1].trim() + "' a Long.");
+                        }
+                    } else {
+                        System.err.println("Formato incorrecto para idPart: " + idPart);
+                    }
+                }, () -> JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE));
     }
 
     public void eliminarSolicitudPorId(String selectedProductName) {
-        // Obtener los detalles de todas las solicitudes pendientes
-        List<String> pendingRequestsDetails = getPendingRequestsDetails();
-
-        // Buscar la solicitud pendiente del producto seleccionado
-        boolean found = false;
-        for (String details : pendingRequestsDetails) {
-            if (details.contains(selectedProductName)) {
-                // Extraer el ID de la solicitud para eliminarla
-                String[] parts = details.split(" - ");
-                String idPart = parts[0]; // Esto asume el formato "Solicitud: ID"
-
-                // Extraer el ID de la solicitud
-                String[] idParts = idPart.split(": ");
-                if (idParts.length != 2) {
-                    System.err.println("Formato incorrecto para idPart: " + idPart);
-                    continue;
-                }
-                String requestIdStr = idParts[1].trim();
-
-                // Obtener el ID de la solicitud como Long
-                Long requestedId;
-                try {
-                    requestedId = Long.parseLong(requestIdStr);
-                } catch (NumberFormatException e) {
-                    System.err.println("No se pudo convertir '" + requestIdStr + "' a Long.");
-                    continue; // O manejar el error de alguna manera adecuada
-                }
-
-                // Eliminar la solicitud por su ID
-                requestedService.deleteById(requestedId);
-                JOptionPane.showMessageDialog(null, "La solicitud con ID " + requestedId + " ha sido eliminada.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE);
+        getPendingRequestsDetails().stream()
+                .filter(details -> details.contains(selectedProductName))
+                .findFirst()
+                .ifPresentOrElse(details -> {
+                    String[] parts = details.split(" - ");
+                    String idPart = parts[0];
+                    String[] idParts = idPart.split(": ");
+                    if (idParts.length == 2) {
+                        try {
+                            Long requestId = Long.parseLong(idParts[1].trim());
+                            requestedService.deleteById(requestId);
+                            JOptionPane.showMessageDialog(null, "La solicitud con ID " + requestId + " ha sido eliminada.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        } catch (NumberFormatException e) {
+                            System.err.println("No se pudo convertir '" + idParts[1].trim() + "' a Long.");
+                        }
+                    } else {
+                        System.err.println("Formato incorrecto para idPart: " + idPart);
+                    }
+                }, () -> JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE));
+    }
+    public void startBackgroundUpdate(Runnable updateTask) {
+        if (executorService == null) {
+            executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.scheduleAtFixedRate(updateTask, 0, 5, TimeUnit.SECONDS);
         }
     }
+
+
     public String concatProcessToProduct(long id_1, long id_2){
         productService.addProcessToProduct(id_1,id_2);
         return "Se intento";
     }
-
-
-
-
 }
