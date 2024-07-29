@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 
 import uce.edu.ec.SDG_Enterprise.Sevice.Repository.ProcessRepository;
 import uce.edu.ec.SDG_Enterprise.Model.Process;
-import java.util.List;
 
+import java.util.List;
 
 
 @Service
@@ -22,10 +22,11 @@ public class ProcessService {
     public List<Process> getAllProcesses() {
         return processRepository.findAll();
     }
-    public Process saveProcess(Process process) {
 
+    public Process saveProcess(Process process) {
         return processRepository.save(process);
     }
+
     public Process createProcess(Process process) {
         return processRepository.save(process);
     }
@@ -33,7 +34,8 @@ public class ProcessService {
     public void deleteProcess(Long id) {
         processRepository.deleteById(id);
     }
-    public void updateProcessTime(String name,  Double newTime) {
+
+    public void updateProcessTime(String name, Double newTime) {
         List<Process> processes = processRepository.findByNameProcess(name);
 
         if (!processes.isEmpty()) {

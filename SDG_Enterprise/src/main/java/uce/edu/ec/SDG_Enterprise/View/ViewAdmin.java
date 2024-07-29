@@ -7,6 +7,8 @@ import uce.edu.ec.SDG_Enterprise.Model.Product;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ViewAdmin extends JFrame {
     private Controler controler;
@@ -17,14 +19,17 @@ public class ViewAdmin extends JFrame {
     DefaultListModel<String> modeloProcesos;
     DefaultListModel<String> modeloProductos;
     JScrollPane scrollPanelFabricacion;
+    private ExecutorService executorService;
 
     public ViewAdmin(Controler controler) {
         super("ViewAdmin");
         setUndecorated(true);
         setResizable(false);
-        this.modelo = new DefaultListModel<>();
-        this.modeloProcesos = new DefaultListModel<>();
-        this.modeloProductos = new DefaultListModel<>();
+        modelo = new DefaultListModel<>();
+        modeloProcesos = new DefaultListModel<>();
+        modeloProductos = new DefaultListModel<>();
+        executorService = Executors.newFixedThreadPool(3);
+
         // Generaliza el tamaño de la pantalla
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(screenSize.width, screenSize.height);
@@ -34,7 +39,7 @@ public class ViewAdmin extends JFrame {
 
         this.controler = controler;
 
-        JList<String> jlProductosPendientes = new JList<>(this.modelo);
+        JList<String> jlProductosPendientes = new JList<>(modelo);
         productosPendientes = controler.getPendingRequestsDetails();
 
         // Panel que contiene
@@ -63,6 +68,7 @@ public class ViewAdmin extends JFrame {
         panelEncabezado.add(botonSalir);
 
         botonSalir.addActionListener(e -> dispose());
+
 
         panelPrincipal.add(panelEncabezado, BorderLayout.NORTH);
 
@@ -135,6 +141,7 @@ public class ViewAdmin extends JFrame {
 
         jbFabricar.addActionListener(e -> {
             if (selectedProduct != null) {
+
                 controler.fabricarProducto(selectedProduct);
                 productosPendientes = controler.getPendingRequestsDetails();
                 modelo.clear();
@@ -195,9 +202,9 @@ public class ViewAdmin extends JFrame {
 
                 if (result == JOptionPane.OK_OPTION) {
                     String material = txtMaterial.getText();
-                   long id= controler.addProcess(nombre, material,tiempo).getId();
+                    long id = controler.addProcess(nombre, material, tiempo).getId();
                     System.out.println(material);
-                    controler.processMaterial(material,id);
+                    controler.processMaterial(material, id);
                     JOptionPane.showMessageDialog(null, "Proceso ingresado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(null, "Proceso cancelado.", "Cancelación", JOptionPane.WARNING_MESSAGE);
@@ -245,7 +252,6 @@ public class ViewAdmin extends JFrame {
         });
 
 
-
         JList<String> jlProcesos = new JList<>(modeloProcesos);
         JScrollPane scrollProcesos = new JScrollPane(jlProcesos);
         scrollProcesos.setBorder(BorderFactory.createTitledBorder("Procesos Existentes"));
@@ -258,7 +264,7 @@ public class ViewAdmin extends JFrame {
         tabbedPane.addTab("Procesos", tabProcesos);
         List<Process> procesos = controler.getAllProcess();
         for (Process process : procesos) {
-            modeloProcesos.addElement(process.getNameProcess()+"  "+process.getTime());
+            modeloProcesos.addElement(process.getNameProcess() + "  " + process.getTime());
         }
         jlProcesos.setModel(modeloProcesos);
 
@@ -290,7 +296,7 @@ public class ViewAdmin extends JFrame {
         panelNuevoProducto.add(new JLabel());
         panelNuevoProducto.add(btnIngresarProducto);
 
-       // Acción del botón Ingresar
+        // Acción del botón Ingresar
         btnIngresarProducto.addActionListener(e -> {
             String nombre = txtNombreProducto.getText();
             String material = txtMaterialProducto.getText();
@@ -336,7 +342,7 @@ public class ViewAdmin extends JFrame {
             String nuevoPrecioStr = txtNuevoPrecioProducto.getText();
             try {
                 double nuevoPrecio = Double.parseDouble(nuevoPrecioStr);
-              controler.changePrice(nombreModificar,materialModificar,nuevoPrecio);
+                controler.changePrice(nombreModificar, materialModificar, nuevoPrecio);
                 JOptionPane.showMessageDialog(null, "Precio de producto actualizado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 txtNombreModificarProducto.setText("");
                 txtMaterialModificarProducto.setText("");
@@ -360,9 +366,10 @@ public class ViewAdmin extends JFrame {
         tabbedPane.addTab("Productos", tabProductos);
         List<Product> products = controler.getProduct();
         for (Product product : products) {
-            modeloProductos.addElement(product.getName()+"  "+product.getMaterial()+"  "+String.valueOf(product.getPrice()));
+            modeloProductos.addElement(product.getName() + "  " + product.getMaterial() + "  " + String.valueOf(product.getPrice()));
         }
         jlProductos.setModel(modeloProductos);
+
         panelPrincipal.add(tabbedPane, BorderLayout.CENTER);
 
 
@@ -370,9 +377,10 @@ public class ViewAdmin extends JFrame {
         setVisible(true);
 
 
-actualizaciones();
+        actualizaciones();
     }
-    private void actualizaciones(){
+
+    private void actualizaciones() {
         controler.startBackgroundUpdate(this::actualizarListaProcesos);
         controler.startBackgroundUpdate(this::actualizarListaProductos);
         controler.startBackgroundUpdate(this::actualizarListaProductosPendientes);
@@ -389,6 +397,7 @@ actualizaciones();
             }
         });
     }
+
     private void actualizarListaProductos() {
         SwingUtilities.invokeLater(() -> {
             System.out.println("Actualizando lista de productos");
@@ -399,6 +408,7 @@ actualizaciones();
             }
         });
     }
+
     private void actualizarListaProductosPendientes() {
         SwingUtilities.invokeLater(() -> {
             System.out.println("Actualizando lista de productos pendientes");
@@ -424,6 +434,7 @@ actualizaciones();
             labelDetalles.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 16));
             panelFabricacion.add(labelDetalles);
         }
+
         panelFabricacion.revalidate();
         panelFabricacion.repaint();
     }

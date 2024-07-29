@@ -5,19 +5,20 @@ import org.slf4j.LoggerFactory;
 import uce.edu.ec.SDG_Enterprise.Container.Controler;
 import uce.edu.ec.SDG_Enterprise.Model.Product;
 
-import java.util.List;
+import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class ViewClient extends JFrame {
     Controler controler;
     private static final Logger log = LoggerFactory.getLogger(ViewClient.class);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
     private DefaultListModel<String> carritoModel;
-    private Set<Product> productosSeleccionados;
+    private Map<Product, Integer> productosSeleccionados;
     private JLabel jtTotalCarrito;
 
     public ViewClient(Controler controler) {
@@ -35,7 +36,8 @@ public class ViewClient extends JFrame {
 
         // Inicializa el carrito y productos seleccionados
         carritoModel = new DefaultListModel<>();
-        productosSeleccionados = new HashSet<>();
+        productosSeleccionados = new HashMap<>();
+
 
         //Lienzo Princpal
         JPanel panelPrincipal = new JPanel();
@@ -73,7 +75,7 @@ public class ViewClient extends JFrame {
         jbPendientes.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 30));
 
         jbPendientes.addActionListener(e -> {
-            PedidosUI pedidos = new PedidosUI(controler);
+            controler.startViewPedidos();
         });
         panelEncabezado.add(jbPendientes);
 
@@ -129,6 +131,7 @@ public class ViewClient extends JFrame {
             jtTotalCarrito.setText("Total: $0.00");
         });
 
+
         // Boton Comprar
         JButton jbComprar = new JButton("Comprar");
         jbComprar.setBounds(37 * x, 47 * y, 20 * x, 5 * y);
@@ -141,6 +144,7 @@ public class ViewClient extends JFrame {
             productosSeleccionados.clear();
             jtTotalCarrito.setText("Total: $0.00");
         });
+
 
         // Botón para actualizar productos
         JButton jbActualizar = new JButton("Actualizar Productos");
@@ -164,47 +168,73 @@ public class ViewClient extends JFrame {
 
     private void cargarProductos(JPanel productosPanel) {
         productosPanel.removeAll();
-        try {
 
-            List<Product> productos = controler.getProduct();
-
-            int y = 10;
-            for (Product producto : productos) {
-                JLabel productoLabel = new JLabel(producto.getName() + " - " + producto.getMaterial() + " - $" + producto.getPrice());
-                productoLabel.setBounds(10, y, productosPanel.getWidth() - 20, 30);
-                productoLabel.setOpaque(true);
-                productoLabel.setBackground(new Color(235, 235, 220));
-                productoLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-
-                // Añadir MouseListener para seleccionar producto
-                productoLabel.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if (!productosSeleccionados.contains(producto)) {
-                            productosSeleccionados.add(producto);
-                            carritoModel.addElement(producto.getName() + " - $" + producto.getPrice());
-
-                            jtTotalCarrito.setText("Total: " + calcularTotal());
-                        }
-                    }
-                });
-
-                productosPanel.add(productoLabel);
-                y += 40;
+        // Crear una tarea asíncrona para cargar productos
+        Callable<List<Product>> cargarProductosTask = () -> {
+            try {
+                return controler.getProduct();
+            } catch (Exception e) {
+                log.error("Error loading products", e);
+                return null;
             }
-            productosPanel.revalidate();
-            productosPanel.repaint();
-        } catch (Exception e) {
-            log.error("Error loading products", e);
-        }
+        };
+
+        // Enviar la tarea al ExecutorService del controlador
+        Future<List<Product>> future = executorService.submit(cargarProductosTask);
+
+        // Crear una tarea para actualizar la UI una vez que los productos se hayan cargado
+        SwingUtilities.invokeLater(() -> {
+            try {
+                List<Product> productos = future.get();
+
+                if (productos != null) {
+                    int y = 10;
+                    for (Product producto : productos) {
+                        JLabel productoLabel = new JLabel(producto.getName() + " - " + producto.getMaterial() + " - $" + producto.getPrice());
+                        productoLabel.setBounds(10, y, productosPanel.getWidth() - 20, 30);
+                        productoLabel.setOpaque(true);
+                        productoLabel.setBackground(new Color(235, 235, 220));
+                        productoLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
+                        // Añadir MouseListener para seleccionar producto
+                        productoLabel.addMouseListener(new MouseAdapter() {
+                            @Override
+                            public void mouseClicked(MouseEvent e) {
+                                productosSeleccionados.put(producto, productosSeleccionados.getOrDefault(producto, 0) + 1);
+                                actualizarCarrito();
+                            }
+                        });
+
+                        productosPanel.add(productoLabel);
+                        y += 40;
+                    }
+                    productosPanel.revalidate();
+                    productosPanel.repaint();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                log.error("Error retrieving products", e);
+            }
+        });
     }
 
+    private void actualizarCarrito() {
+        carritoModel.clear();
+        for (Map.Entry<Product, Integer> entry : productosSeleccionados.entrySet()) {
+            Product producto = entry.getKey();
+            int cantidad = entry.getValue();
+            carritoModel.addElement(producto.getName() + " - $" + producto.getPrice() + " x " + cantidad);
+        }
+        jtTotalCarrito.setText("Total: " + calcularTotal());
+    }
+
+
     private String calcularTotal() {
-        double total = productosSeleccionados.stream()
-                .mapToDouble(Product::getPrice)
+        double total = productosSeleccionados.entrySet().stream()
+                .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
                 .sum();
         return String.format("$%.2f", total);
     }
+
 
 
 }

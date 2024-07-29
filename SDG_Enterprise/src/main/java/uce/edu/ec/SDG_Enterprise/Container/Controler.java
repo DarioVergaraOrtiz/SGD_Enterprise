@@ -1,6 +1,8 @@
 package uce.edu.ec.SDG_Enterprise.Container;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import uce.edu.ec.SDG_Enterprise.Model.Process;
@@ -11,12 +13,14 @@ import uce.edu.ec.SDG_Enterprise.Sevice.ProcessService;
 import uce.edu.ec.SDG_Enterprise.Sevice.ProductService;
 import uce.edu.ec.SDG_Enterprise.Sevice.RequestedService;
 import uce.edu.ec.SDG_Enterprise.Sevice.UserService;
+import uce.edu.ec.SDG_Enterprise.View.PedidosUI;
 import uce.edu.ec.SDG_Enterprise.View.UIRegister;
 import uce.edu.ec.SDG_Enterprise.View.ViewAdmin;
 import uce.edu.ec.SDG_Enterprise.View.ViewClient;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,12 +32,12 @@ public class Controler {
     private UserService usuarioService;
     private ProductService productService;
     private RequestedService requestedService;
-    private List<ScheduledExecutorService> executorServices = new ArrayList<>();
+    public List<ScheduledExecutorService> executorServices = new ArrayList<>();
     private ProcessService processService;
     User user;
 
     @Autowired
-    public Controler(ProductService productService, RequestedService requestedService, UserService usuarioService,ProcessService processService) {
+    public Controler(ProductService productService, RequestedService requestedService, UserService usuarioService, ProcessService processService) {
         this.productService = productService;
         this.requestedService = requestedService;
         this.usuarioService = usuarioService;
@@ -62,6 +66,10 @@ public class Controler {
         return user.getUsername();
     }
 
+    public Long userId(){
+        return user.getId();
+    }
+
     public void startViewAdministrator() {
         ViewAdmin viewAdmin = new ViewAdmin(this);
         viewAdmin.setVisible(true);
@@ -85,7 +93,8 @@ public class Controler {
     public void addProduct(String name, String material, double price) {
         productService.saveProduct(name, material, price);
     }
-    public Process addProcess(String name, String material,double time) {
+
+    public Process addProcess(String name, String material, double time) {
         Process proceso = new Process();
         proceso.setNameProcess(name);
         proceso.setTime(time);
@@ -96,28 +105,36 @@ public class Controler {
     public List<Product> getProduct() {
         return productService.findAll();
     }
-    public List<String> getProduct_1() {
-        return Collections.singletonList(productService.findAll().toString());
-    }
+
+    // no se usa confirma para borrar
+//    public List<String> getProduct_1() {
+//        return Collections.singletonList(productService.findAll().toString());
+//    }
 
 
-    public void realizarCompra(Set<Product> productosSeleccionados) {
+    public void realizarCompra(Map<Product, Integer> productosSeleccionados) {
         Long userId = user.getId();
         if (userId == null) {
             JOptionPane.showMessageDialog(null, "No se pudo encontrar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
         String estado = "Pendiente";
 
         try {
-            for (Product producto : productosSeleccionados) {
-                requestedService.create(user, producto, estado);
+            for (Map.Entry<Product, Integer> entry : productosSeleccionados.entrySet()) {
+                Product producto = entry.getKey();
+                int cantidad = entry.getValue();
+                for (int i = 0; i < cantidad; i++) {
+                    requestedService.create(user, producto, estado);
+                }
             }
             JOptionPane.showMessageDialog(null, "Compra realizada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error al realizar la compra.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     public List<Requested> getestado(String estado) {
         return requestedService.findByEstado(estado);
@@ -180,11 +197,12 @@ public class Controler {
                 }, () -> JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE));
     }
 
-    public void changePrice(String name, String material, double newPrice){
+    public void changePrice(String name, String material, double newPrice) {
         productService.updateProductPrice(name, material, newPrice);
     }
-    public List<Process> getAllProcess(){
-         return processService.getAllProcesses();
+
+    public List<Process> getAllProcess() {
+        return processService.getAllProcesses();
     }
 
     public void eliminarSolicitudPorId(String selectedProductName) {
@@ -208,6 +226,7 @@ public class Controler {
                     }
                 }, () -> JOptionPane.showMessageDialog(null, "No se encontraron solicitudes pendientes para el producto seleccionado.", "Error", JOptionPane.ERROR_MESSAGE));
     }
+
     public void startBackgroundUpdate(Runnable updateTask) {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(updateTask, 0, 5, TimeUnit.SECONDS);
@@ -215,15 +234,14 @@ public class Controler {
     }
 
 
-    public void updateProcessTime(String name,  Double newTime){
+    public void updateProcessTime(String name, Double newTime) {
         processService.updateProcessTime(name, newTime);
     }
 
-    public String concatProcessToProduct(long id_1, long id_2){
-        productService.addProcessToProduct(id_1,id_2);
+    public String concatProcessToProduct(long id_1, long id_2) {
+        productService.addProcessToProduct(id_1, id_2);
         return "Se intento";
     }
-
 
 
     public void processMaterial(String material, Long processId) {
@@ -235,6 +253,18 @@ public class Controler {
         } catch (Exception e) {
             System.err.println("An error occurred: " + e.getMessage());
         }
+    }
+
+    public List<Requested> getRequestedByUserId(Long userId) {
+        return requestedService.findByUserId(userId);
+    }
+
+    public Product getProductById(Long id) {
+        return productService.getProductById(id);
+    }
+
+    public void startViewPedidos(){
+        PedidosUI ui = new PedidosUI(this);
     }
 
 

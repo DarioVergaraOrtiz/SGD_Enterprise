@@ -23,6 +23,7 @@ public class ProductService {
     public Product save(Product product) {
         return productRepository.save(product);
     }
+
     @Transactional
     public Product saveProduct(String name, String material, double price) {
         Product product = new Product();
@@ -32,13 +33,16 @@ public class ProductService {
         associateProductWithProcesses(product);
         return productRepository.save(product);
     }
+
+
+
     public List<Product> findAll() {
         return productRepository.findAll();
     }
+
     public Optional<Product> findById(Long id) {
         return productRepository.findById(id);
     }
-
 
 
     public void addProcessToProduct(Long productId, Long processId) {
@@ -52,6 +56,7 @@ public class ProductService {
 
         productRepository.save(product);
     }
+
     public void updateProductPrice(String name, String material, double newPrice) {
         List<Product> products = productRepository.findByNameAndMaterial(name, material);
 
@@ -69,6 +74,7 @@ public class ProductService {
     public List<Product> getProductsByMaterial(String material) {
         return productRepository.findByMaterial(material);
     }
+
     @Transactional
     public void addProcessToProductsByMaterial(String material, Long processId) {
         List<Product> products = productRepository.findByMaterial(material);
@@ -85,6 +91,7 @@ public class ProductService {
             productRepository.save(product);
         }
     }
+
     public void associateProductWithProcesses(Product product) {
         List<Process> processes = processRepository.findByNameMaterial(product.getMaterial());
 
@@ -95,6 +102,10 @@ public class ProductService {
 
         productRepository.save(product);
         processRepository.saveAll(processes);
+    }
+
+    public Product getProductById(Long id) {
+        return productRepository.findByid(id);
     }
 
 }

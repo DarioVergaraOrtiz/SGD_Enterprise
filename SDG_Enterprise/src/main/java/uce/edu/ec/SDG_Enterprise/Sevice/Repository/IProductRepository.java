@@ -7,5 +7,7 @@ import java.util.List;
 public interface IProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByNameAndMaterial(String name, String material);
     List<Product> findByMaterial(String material);
+    Product findByid(Long id);
+    boolean existsByNameAndMaterial(String name, String material);
 
 }

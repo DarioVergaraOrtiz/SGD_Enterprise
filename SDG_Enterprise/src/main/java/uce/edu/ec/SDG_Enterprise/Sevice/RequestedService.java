@@ -18,12 +18,19 @@ public class RequestedService {
     public List<Requested> findAll() {
         return requestedRespository.findAll();
     }
+
     public Optional<Requested> findById(Long id) {
         return requestedRespository.findById(id);
     }
+
+    public List<Requested> findByUserId(Long idUser) {
+        return requestedRespository.findByUserId(idUser); // Asegúrate de que coincida con el método del repositorio
+    }
+
     public Requested save(Requested requested) {
         return requestedRespository.save(requested);
     }
+
     public Requested create(User user, Product product, String estado) {
         Requested requested = new Requested();
         requested.setUser(user);
@@ -31,9 +38,11 @@ public class RequestedService {
         requested.setEstado(estado);
         return requestedRespository.save(requested);
     }
+
     public List<Requested> findByEstado(String estado) {
         return requestedRespository.findByEstado(estado);
     }
+
     public void deleteById(Long id) {
         requestedRespository.deleteById(id);
     }

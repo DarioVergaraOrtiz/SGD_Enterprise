@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ProcessRepository extends JpaRepository<Process, Long> {
     List<Process> findByNameProcess(String nameProcess);
-    List<Process> findByNameMaterial(String nameMaterial);
+    List<Process> findByNameMaterial(String idUser);
 }

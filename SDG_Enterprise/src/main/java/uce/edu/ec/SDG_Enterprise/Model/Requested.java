@@ -52,4 +52,14 @@ public class Requested {
     public void setUser(User user) {
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "Requested{" +
+                "id=" + id +
+                ", user=" + user.getId() +
+                ", product=" + product.getId() +
+                ", estado='" + estado + '\'' +
+                '}';
+    }
 }
