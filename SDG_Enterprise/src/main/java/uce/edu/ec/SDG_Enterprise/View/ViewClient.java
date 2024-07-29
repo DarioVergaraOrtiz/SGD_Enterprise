@@ -38,7 +38,6 @@ public class ViewClient extends JFrame {
         carritoModel = new DefaultListModel<>();
         productosSeleccionados = new HashMap<>();
 
-
         //Lienzo Princpal
         JPanel panelPrincipal = new JPanel();
         panelPrincipal.setLayout(null);
@@ -131,7 +130,6 @@ public class ViewClient extends JFrame {
             jtTotalCarrito.setText("Total: $0.00");
         });
 
-
         // Boton Comprar
         JButton jbComprar = new JButton("Comprar");
         jbComprar.setBounds(37 * x, 47 * y, 20 * x, 5 * y);
@@ -144,7 +142,6 @@ public class ViewClient extends JFrame {
             productosSeleccionados.clear();
             jtTotalCarrito.setText("Total: $0.00");
         });
-
 
         // Botón para actualizar productos
         JButton jbActualizar = new JButton("Actualizar Productos");
@@ -217,6 +214,13 @@ public class ViewClient extends JFrame {
         });
     }
 
+    private String calcularTotal() {
+        double total = productosSeleccionados.entrySet().stream()
+                .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
+                .sum();
+        return String.format("$%.2f", total);
+    }
+
     private void actualizarCarrito() {
         carritoModel.clear();
         for (Map.Entry<Product, Integer> entry : productosSeleccionados.entrySet()) {
@@ -226,15 +230,6 @@ public class ViewClient extends JFrame {
         }
         jtTotalCarrito.setText("Total: " + calcularTotal());
     }
-
-
-    private String calcularTotal() {
-        double total = productosSeleccionados.entrySet().stream()
-                .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
-                .sum();
-        return String.format("$%.2f", total);
-    }
-
 
 
 }

@@ -24,7 +24,8 @@ public class RequestedService {
     }
 
     public List<Requested> findByUserId(Long idUser) {
-        return requestedRespository.findByUserId(idUser); // Asegúrate de que coincida con el método del repositorio
+        List<Requested> pedidos = requestedRespository.findByUserId(idUser);
+        return pedidos;
     }
 
     public Requested save(Requested requested) {

@@ -3,26 +3,31 @@ package uce.edu.ec.SDG_Enterprise.View;
 import uce.edu.ec.SDG_Enterprise.Container.Controler;
 import uce.edu.ec.SDG_Enterprise.Model.Product;
 import uce.edu.ec.SDG_Enterprise.Model.Requested;
-import uce.edu.ec.SDG_Enterprise.Model.User;
-import uce.edu.ec.SDG_Enterprise.Sevice.Repository.INotify;
+import uce.edu.ec.SDG_Enterprise.Sevice.Repository.Observer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Optional;
 
 
-public class PedidosUI extends JFrame implements INotify {
+public class PedidosUI extends JFrame implements Observer {
+
 
     Controler controler;
-    int presionar = 0;
     List<Requested> pedidos;
     DefaultListModel<String> modeloidPedidos;
     DefaultListModel<String> modeloNombreProducto;
     DefaultListModel<String> modeloEstado;
+    JList<String> jlIDPedidos;
+    JList<String> jlNombrePedidos;
+    JList<String> jlEstadoPedidos;
+    private long idUser;
 
-    public PedidosUI(Controler controler) {; // Establecer el JDialog como modal
+
+    public PedidosUI(Controler controler) {
+        // Establecer el JDialog como modal
+        System.out.println("Entra por la clase pedidos y actuliza el id");
         setUndecorated(true);
         setResizable(false);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -34,7 +39,9 @@ public class PedidosUI extends JFrame implements INotify {
         int x = screenSize.width / 96;
         int y = screenSize.height / ((screenSize.height * 96) / screenSize.width);
         this.controler = controler;
+        controler.addObserver(this);
         pedidos = controler.getRequestedByUserId(controler.userId());
+        idUser = controler.userId();
         modeloidPedidos = new DefaultListModel<>();
         modeloNombreProducto = new DefaultListModel<>();
         modeloEstado = new DefaultListModel<>();
@@ -67,7 +74,10 @@ public class PedidosUI extends JFrame implements INotify {
         botonSalir.setBorderPainted(false);
         panelEncabezado.add(botonSalir);
 
-        botonSalir.addActionListener(e -> dispose());
+        botonSalir.addActionListener(e -> {
+            controler.removeObserver(this);
+            dispose();
+        });
 
         panelPrincipal.add(panelEncabezado);
 
@@ -95,7 +105,7 @@ public class PedidosUI extends JFrame implements INotify {
         panelPrincipal.add(panelNotificaciones);
 
         JLabel labelNombrePedido = new JLabel("NUMERO DE PEDIDO");
-        labelNombrePedido.setBounds(0,0, 28*x, 3*y);
+        labelNombrePedido.setBounds(0, 0, 28 * x, 3 * y);
         labelNombrePedido.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 25));
         labelNombrePedido.setForeground(Color.BLACK);
         labelNombrePedido.setHorizontalAlignment(SwingConstants.CENTER);
@@ -103,7 +113,7 @@ public class PedidosUI extends JFrame implements INotify {
         panelNotificaciones.add(labelNombrePedido);
 
         JLabel labelEstadoPedido = new JLabel("ESTADO");
-        labelEstadoPedido.setBounds(28*x,0,10*x, 3*y );
+        labelEstadoPedido.setBounds(28 * x, 0, 10 * x, 3 * y);
         labelEstadoPedido.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 25));
         labelEstadoPedido.setForeground(Color.BLACK);
         labelEstadoPedido.setHorizontalAlignment(SwingConstants.CENTER);
@@ -111,17 +121,14 @@ public class PedidosUI extends JFrame implements INotify {
         panelNotificaciones.add(labelEstadoPedido);
 
         for (Requested pedido : pedidos) {
-            Product product = controler.getProductById(pedido.getProduct().getId());
+            Product product = controler.getOneProductById(pedido.getProduct().getId());
             modeloidPedidos.addElement(String.valueOf(pedido.getId()));
             modeloNombreProducto.addElement(product.getName());
             modeloEstado.addElement(pedido.getEstado());
         }
 
-
-
-
-        JList<String> jlIDPedidos = new JList<>(modeloidPedidos);
-        jlIDPedidos.setBounds(2,3*x, 2*x-2, 19*y-2);
+        jlIDPedidos = new JList<>(modeloidPedidos);
+        jlIDPedidos.setBounds(2, 3 * x, 2 * x - 2, 19 * y - 2);
         jlIDPedidos.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 15));
         jlIDPedidos.setOpaque(false);
         jlIDPedidos.setBackground(new Color(245, 245, 220));
@@ -129,20 +136,19 @@ public class PedidosUI extends JFrame implements INotify {
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         panelNotificaciones.add(jlIDPedidos);
 
-        JList<String> jlNombrePedidos = new JList<>(modeloNombreProducto);
-        jlNombrePedidos.setBounds(2*x,3*x, 26*x, 19*y-2);
+        jlNombrePedidos = new JList<>(modeloNombreProducto);
+        jlNombrePedidos.setBounds(2 * x, 3 * x, 26 * x, 19 * y - 2);
         jlNombrePedidos.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 15));
         jlNombrePedidos.setOpaque(false);
         jlNombrePedidos.setBackground(new Color(245, 245, 220));
         panelNotificaciones.add(jlNombrePedidos);
 
-        JList<String> jlEstadoPedidos = new JList<>(modeloEstado);
-        jlEstadoPedidos.setBounds(28*x,3*x, 10*x-2, 19*y-2);
+        jlEstadoPedidos = new JList<>(modeloEstado);
+        jlEstadoPedidos.setBounds(28 * x, 3 * x, 10 * x - 2, 19 * y - 2);
         jlEstadoPedidos.setFont(new Font("Georgia", Font.BOLD + Font.ITALIC, 15));
         jlEstadoPedidos.setOpaque(false);
         jlEstadoPedidos.setBackground(new Color(245, 245, 220));
         panelNotificaciones.add(jlEstadoPedidos);
-
 
 
         getContentPane().add(panelPrincipal);
@@ -150,18 +156,25 @@ public class PedidosUI extends JFrame implements INotify {
     }
 
     @Override
-    public void actualizar() {
+    public void update() {
+        actualizarListaProductosPendientes();
+    }
 
-        System.out.println("---------------------------------------------------------------------------------");
-        System.out.println("---------------------------------------------------------------------------------");
-        System.out.println(controler.userId() + " " + controler.userName());
-        System.out.println(pedidos.size() + " pedidos");
+    private void actualizarListaProductosPendientes() {
+
+        System.out.println("entra por aqui y su id es " + idUser);
+        modeloEstado.clear();
+        pedidos = controler.getRequestedByUserId(idUser);
+
         for (Requested pedido : pedidos) {
-            System.out.println(pedido.toString());
+            System.out.println(pedido.getEstado());
+            modeloEstado.addElement(pedido.getEstado());
         }
-        System.out.println("---------------------------------------------------------------------------------");
-        System.out.println("---------------------------------------------------------------------------------");
 
+        jlEstadoPedidos.setModel(modeloEstado);
 
     }
+
+
 }
+

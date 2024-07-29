@@ -3,6 +3,7 @@ package uce.edu.ec.SDG_Enterprise.Sevice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import uce.edu.ec.SDG_Enterprise.Model.Product;
 import uce.edu.ec.SDG_Enterprise.Sevice.Repository.ProcessRepository;
 import uce.edu.ec.SDG_Enterprise.Model.Process;
 
@@ -31,10 +32,6 @@ public class ProcessService {
         return processRepository.save(process);
     }
 
-    public void deleteProcess(Long id) {
-        processRepository.deleteById(id);
-    }
-
     public void updateProcessTime(String name, Double newTime) {
         List<Process> processes = processRepository.findByNameProcess(name);
 
@@ -46,5 +43,10 @@ public class ProcessService {
         } else {
             System.out.println("No process found with the specified name and time.");
         }
+    }
+
+    public List<Process> getproductsByMaterial(String material) {
+        return processRepository.findByNameMaterial(material);
+
     }
 }

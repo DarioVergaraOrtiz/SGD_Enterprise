@@ -1,8 +1,6 @@
 package uce.edu.ec.SDG_Enterprise.Container;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import uce.edu.ec.SDG_Enterprise.Model.Process;
@@ -11,6 +9,8 @@ import uce.edu.ec.SDG_Enterprise.Model.Requested;
 import uce.edu.ec.SDG_Enterprise.Model.User;
 import uce.edu.ec.SDG_Enterprise.Sevice.ProcessService;
 import uce.edu.ec.SDG_Enterprise.Sevice.ProductService;
+import uce.edu.ec.SDG_Enterprise.Sevice.Repository.Observer;
+import uce.edu.ec.SDG_Enterprise.Sevice.Repository.Subject;
 import uce.edu.ec.SDG_Enterprise.Sevice.RequestedService;
 import uce.edu.ec.SDG_Enterprise.Sevice.UserService;
 import uce.edu.ec.SDG_Enterprise.View.PedidosUI;
@@ -20,20 +20,20 @@ import uce.edu.ec.SDG_Enterprise.View.ViewClient;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
-public class Controler {
+public class Controler extends Subject {
 
     private UserService usuarioService;
     private ProductService productService;
     private RequestedService requestedService;
-    public List<ScheduledExecutorService> executorServices = new ArrayList<>();
+    private List<ScheduledExecutorService> executorServices = new ArrayList<>();
     private ProcessService processService;
+    private List<PedidosUI> pedidosUIS = new ArrayList<>();
     User user;
 
     @Autowired
@@ -66,7 +66,7 @@ public class Controler {
         return user.getUsername();
     }
 
-    public Long userId(){
+    public Long userId() {
         return user.getId();
     }
 
@@ -106,11 +106,6 @@ public class Controler {
         return productService.findAll();
     }
 
-    // no se usa confirma para borrar
-//    public List<String> getProduct_1() {
-//        return Collections.singletonList(productService.findAll().toString());
-//    }
-
 
     public void realizarCompra(Map<Product, Integer> productosSeleccionados) {
         Long userId = user.getId();
@@ -135,7 +130,6 @@ public class Controler {
         }
     }
 
-
     public List<Requested> getestado(String estado) {
         return requestedService.findByEstado(estado);
     }
@@ -159,17 +153,29 @@ public class Controler {
                 .collect(Collectors.toList());
     }
 
+    public List<Requested> getRequesedByestado() {
+        return requestedService.findByEstado("pendiente");
+    }
+
 
     public List<String> getMakingRequestsDetails() {
         return requestedService.findByEstado("Fabricando...").stream()
                 .map(requested -> {
                     String clientName = usuarioService.findById(requested.getUser().getId()).orElseThrow().getName();
-                    String productName = productService.findById(requested.getProduct().getId()).orElseThrow().getName();
+                    Long productId = requested.getProduct().getId();
+                    String productName = productService.findByIdWithProcesses(productId).getName();
                     Long requestId = requested.getId();
-                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName;
+
+                    Set<Process> processes = productService.findByIdWithProcesses(productId).getProcess();
+                    String processDetails = processes.stream()
+                            .map(process -> "Proceso: " + process.getNameProcess() + ", Material: " + process.getNameMaterial() + ", Tiempo: " + process.getTime())
+                            .collect(Collectors.joining("; "));
+
+                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName + " - Procesos: [" + processDetails + "]" ;
                 })
                 .collect(Collectors.toList());
     }
+
 
     public void fabricarProducto(String selectedProductName) {
         getPendingRequestsDetails().stream()
@@ -259,13 +265,31 @@ public class Controler {
         return requestedService.findByUserId(userId);
     }
 
-    public Product getProductById(Long id) {
+    public Product getOneProductById(Long id) {
         return productService.getProductById(id);
     }
 
-    public void startViewPedidos(){
-        PedidosUI ui = new PedidosUI(this);
+    public void startViewPedidos() {
+        pedidosUIS.add(new PedidosUI(this));
     }
 
+    public List<Process> getProcessbyMaterial(String material) {
+        return processService.getproductsByMaterial(material);
 
+    }
+
+    @Override
+    public void addObserver(Observer observer) {
+        super.addObserver(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        super.removeObserver(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        super.notifyObservers();
+    }
 }

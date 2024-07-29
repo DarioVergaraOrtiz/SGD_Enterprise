@@ -35,7 +35,6 @@ public class ProductService {
     }
 
 
-
     public List<Product> findAll() {
         return productRepository.findAll();
     }
@@ -106,6 +105,10 @@ public class ProductService {
 
     public Product getProductById(Long id) {
         return productRepository.findByid(id);
+    }
+
+    public Product findByIdWithProcesses(Long productId) {
+        return productRepository.findByIdWithProcesses(productId).orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
 }

@@ -3,10 +3,19 @@ package uce.edu.ec.SDG_Enterprise;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
-import uce.edu.ec.SDG_Enterprise.View.UIPrincipal;
 import uce.edu.ec.SDG_Enterprise.View.LoadingScreen;
+import uce.edu.ec.SDG_Enterprise.View.UIPrincipal;
 
 import javax.swing.*;
+
+/**
+ * @author John Quinatoa
+ * 		   Gabriela Rodríguez
+ * 		   Dario Vergara
+ *
+ * @Title: SdgEnterpriseApplication
+ *
+ */
 
 @SpringBootApplication
 public class SdgEnterpriseApplication {

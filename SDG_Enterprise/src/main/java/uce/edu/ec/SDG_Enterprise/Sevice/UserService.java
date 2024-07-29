@@ -17,7 +17,8 @@ public class UserService {
 
         return userRepository.save(usuario);
     }
-    public User saveUser( String rucCedula, String name, String username, String password, String rol, String email, String phone) {
+
+    public User saveUser(String rucCedula, String name, String username, String password, String rol, String email, String phone) {
         User usuario = new User();
         usuario.setRucCedula(rucCedula);
         usuario.setName(name);
@@ -37,9 +38,11 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+
     public Optional<User> findByUsernameAndPassword(String username, String password) {
         return userRepository.findByUsernameAndPassword(username, password);
     }
+
     public String getRolForLogin(String username, String password) {
         Optional<User> usuarioOptional = userRepository.findByUsernameAndPassword(username, password);
 

@@ -1,5 +1,6 @@
 package uce.edu.ec.SDG_Enterprise.View;
 
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -24,7 +25,7 @@ public class LoadingScreen extends JFrame {
         // Configura la barra de progreso
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
-        progressBar.setForeground(new Color(76, 175, 80)); // Color verde de la barra
+        progressBar.setForeground(new Color(150, 0, 0)); // Color verde de la barra
         progressBar.setBorderPainted(false); // Quitar borde
         progressBar.setPreferredSize(new Dimension(300, 20)); // Ajusta el tamaño de la barra
         panel.add(progressBar, BorderLayout.CENTER);
@@ -47,5 +48,4 @@ public class LoadingScreen extends JFrame {
         }
     }
 }
-
 

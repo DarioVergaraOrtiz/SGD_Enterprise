@@ -6,6 +6,9 @@ import uce.edu.ec.SDG_Enterprise.Model.Process;
 import java.util.List;
 
 public interface ProcessRepository extends JpaRepository<Process, Long> {
+
     List<Process> findByNameProcess(String nameProcess);
-    List<Process> findByNameMaterial(String idUser);
+
+    List<Process> findByNameMaterial(String nameMaterial);
+
 }

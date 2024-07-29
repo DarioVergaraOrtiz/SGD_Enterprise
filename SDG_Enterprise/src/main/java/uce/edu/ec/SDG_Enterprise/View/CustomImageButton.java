@@ -12,7 +12,7 @@ public class CustomImageButton extends JButton {
 
         if (icon != null) {
             Image img = icon.getImage();
-            Image scaledImg = img.getScaledInstance(width-5, height-5, Image.SCALE_AREA_AVERAGING);
+            Image scaledImg = img.getScaledInstance(width - 5, height - 5, Image.SCALE_AREA_AVERAGING);
             ImageIcon scaledIcon = new ImageIcon(scaledImg);
             setIcon(scaledIcon);
         } else {
