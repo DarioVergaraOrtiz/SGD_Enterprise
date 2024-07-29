@@ -61,6 +61,7 @@ public class Controler extends Subject {
             JOptionPane.showMessageDialog(null, "Credenciales incorrectas", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     public String userName() {
         return user.getUsername();
@@ -154,7 +155,6 @@ public class Controler extends Subject {
                 .collect(Collectors.toList());
     }
 
-
     public List<String> getMakingRequestsDetails() {
         return requestedService.findByEstado("Fabricando...").stream()
                 .map(requested -> {
@@ -168,10 +168,11 @@ public class Controler extends Subject {
                             .map(process -> "Proceso: " + process.getNameProcess() + ", Material: " + process.getNameMaterial() + ", Tiempo: " + process.getTime())
                             .collect(Collectors.joining("; "));
 
-                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName + " - Procesos: [" + processDetails + "]";
+                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName + " - Procesos: [" + processDetails + "]" ;
                 })
                 .collect(Collectors.toList());
     }
+
 
 
     public void fabricarProducto(String selectedProductName) {
