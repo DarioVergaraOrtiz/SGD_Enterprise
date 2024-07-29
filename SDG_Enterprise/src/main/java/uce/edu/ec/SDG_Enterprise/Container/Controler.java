@@ -107,6 +107,7 @@ public class Controler extends Subject {
     }
 
 
+
     public void realizarCompra(Map<Product, Integer> productosSeleccionados) {
         Long userId = user.getId();
         if (userId == null) {
@@ -153,10 +154,6 @@ public class Controler extends Subject {
                 .collect(Collectors.toList());
     }
 
-    public List<Requested> getRequesedByestado() {
-        return requestedService.findByEstado("pendiente");
-    }
-
 
     public List<String> getMakingRequestsDetails() {
         return requestedService.findByEstado("Fabricando...").stream()
@@ -171,7 +168,7 @@ public class Controler extends Subject {
                             .map(process -> "Proceso: " + process.getNameProcess() + ", Material: " + process.getNameMaterial() + ", Tiempo: " + process.getTime())
                             .collect(Collectors.joining("; "));
 
-                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName + " - Procesos: [" + processDetails + "]" ;
+                    return "Solicitud: " + requestId + " - Cliente: " + clientName + " - Producto: " + productName + " - Procesos: [" + processDetails + "]";
                 })
                 .collect(Collectors.toList());
     }
